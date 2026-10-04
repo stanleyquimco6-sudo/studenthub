@@ -1,18 +1,39 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  useColorScheme,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    useColorScheme,
+    View,
 } from "react-native";
+
+interface StudentProfile {
+  fullName: string;
+  studentId: string;
+  course: string;
+  yearSection: string;
+  email: string;
+}
 
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+
+  // Student profile state with initial values
+  const [profile, setProfile] = useState<StudentProfile>({
+    fullName: "John Doe",
+    studentId: "2024-001234",
+    course: "Bachelor of Science in Computer Science",
+    yearSection: "3-A",
+    email: "john.doe@university.edu",
+  });
+
+  // Temporary state for editing - stores changes before saving
+  const [editedProfile, setEditedProfile] = useState<StudentProfile>(profile);
+  const [isEditing, setIsEditing] = useState(false);
 
   const [groupMembers] = useState([
     { id: 1, name: "Stanley Jose Quimco", role: "Frontend Lead" },
@@ -21,18 +42,6 @@ export default function ProfileScreen() {
     { id: 4, name: "Vanessa Roble", role: "Documentation" },
     { id: 5, name: "Mark Anthony Salvador", role: "Testing" },
   ]);
-
-  const [yourName, setYourName] = useState("");
-  const [yourRole, setYourRole] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-
-  // useEffect demonstrates component lifecycle - loads saved name on mount
-  useEffect(() => {
-    // In a real app, this would load from localStorage
-    // For now, we just set a default
-    setYourName("Your Name");
-    setYourRole("Your Role");
-  }, []);
 
   const styles = StyleSheet.create({
     container: {
@@ -50,7 +59,7 @@ export default function ProfileScreen() {
     },
     profileHeader: {
       alignItems: "center",
-      marginBottom: 12,
+      marginBottom: 20,
     },
     profileIcon: {
       width: 80,
@@ -67,8 +76,8 @@ export default function ProfileScreen() {
       color: isDark ? "#fff" : "#000",
       marginBottom: 4,
     },
-    profileRole: {
-      fontSize: 16,
+    profileStudentId: {
+      fontSize: 14,
       color: isDark ? "#aaa" : "#666",
     },
     inputGroup: {
@@ -89,15 +98,36 @@ export default function ProfileScreen() {
       borderWidth: 1,
       borderColor: isDark ? "#444" : "#ddd",
       marginBottom: 12,
+      fontSize: 14,
+    },
+    viewField: {
+      marginBottom: 12,
+    },
+    viewFieldLabel: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: isDark ? "#ddd" : "#333",
+      marginBottom: 6,
+    },
+    viewFieldValue: {
+      fontSize: 14,
+      color: isDark ? "#fff" : "#000",
+      backgroundColor: isDark ? "#1a1a1a" : "#f5f5f5",
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      borderWidth: 1,
+      borderColor: isDark ? "#444" : "#ddd",
     },
     buttonRow: {
       flexDirection: "row",
       gap: 8,
+      marginTop: 16,
     },
     button: {
       flex: 1,
       borderRadius: 8,
-      paddingVertical: 10,
+      paddingVertical: 12,
       justifyContent: "center",
       alignItems: "center",
     },
@@ -109,6 +139,7 @@ export default function ProfileScreen() {
     },
     editButton: {
       backgroundColor: "#007AFF",
+      marginTop: 16,
     },
     buttonText: {
       fontWeight: "bold",
@@ -156,42 +187,94 @@ export default function ProfileScreen() {
     },
   });
 
+  // Handle editing mode activation - prepare edited profile with current values
+  const handleEditPress = () => {
+    setEditedProfile(profile);
+    setIsEditing(true);
+  };
+
+  // Handle save - update displayed profile and exit editing mode
   const handleSave = () => {
+    setProfile(editedProfile);
     setIsEditing(false);
-    // In a real app, would save to localStorage here
+  };
+
+  // Handle cancel - discard changes and exit editing mode
+  const handleCancel = () => {
+    setEditedProfile(profile);
+    setIsEditing(false);
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Your Profile Card */}
+      {/* Student Profile Card */}
       <View style={styles.card}>
         <View style={styles.profileHeader}>
           <View style={styles.profileIcon}>
             <MaterialIcons name="person" size={40} color="#fff" />
           </View>
-          <Text style={styles.profileName}>{yourName}</Text>
-          <Text style={styles.profileRole}>{yourRole}</Text>
+          <Text style={styles.profileName}>{profile.fullName}</Text>
+          <Text style={styles.profileStudentId}>{profile.studentId}</Text>
         </View>
 
         {isEditing ? (
+          // Edit mode - show text inputs
           <>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Name</Text>
+              <Text style={styles.label}>Full Name</Text>
               <TextInput
                 style={styles.input}
-                value={yourName}
-                onChangeText={setYourName}
-                placeholder="Your name"
+                value={editedProfile.fullName}
+                onChangeText={(text) =>
+                  setEditedProfile({ ...editedProfile, fullName: text })
+                }
+                placeholder="Enter your full name"
                 placeholderTextColor={isDark ? "#666" : "#999"}
               />
 
-              <Text style={styles.label}>Role</Text>
+              <Text style={styles.label}>Student ID</Text>
               <TextInput
                 style={styles.input}
-                value={yourRole}
-                onChangeText={setYourRole}
-                placeholder="Your role"
+                value={editedProfile.studentId}
+                onChangeText={(text) =>
+                  setEditedProfile({ ...editedProfile, studentId: text })
+                }
+                placeholder="Enter your student ID"
                 placeholderTextColor={isDark ? "#666" : "#999"}
+              />
+
+              <Text style={styles.label}>Course</Text>
+              <TextInput
+                style={styles.input}
+                value={editedProfile.course}
+                onChangeText={(text) =>
+                  setEditedProfile({ ...editedProfile, course: text })
+                }
+                placeholder="Enter your course"
+                placeholderTextColor={isDark ? "#666" : "#999"}
+              />
+
+              <Text style={styles.label}>Year/Section</Text>
+              <TextInput
+                style={styles.input}
+                value={editedProfile.yearSection}
+                onChangeText={(text) =>
+                  setEditedProfile({ ...editedProfile, yearSection: text })
+                }
+                placeholder="e.g., 3-A"
+                placeholderTextColor={isDark ? "#666" : "#999"}
+              />
+
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.input}
+                value={editedProfile.email}
+                onChangeText={(text) =>
+                  setEditedProfile({ ...editedProfile, email: text })
+                }
+                placeholder="Enter your email"
+                placeholderTextColor={isDark ? "#666" : "#999"}
+                keyboardType="email-address"
               />
             </View>
 
@@ -204,23 +287,53 @@ export default function ProfileScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
-                onPress={() => setIsEditing(false)}
+                onPress={handleCancel}
               >
-                <Text style={[styles.buttonText, styles.cancelButtonText]}>Cancel</Text>
+                <Text style={[styles.buttonText, styles.cancelButtonText]}>
+                  Cancel
+                </Text>
               </TouchableOpacity>
             </View>
           </>
         ) : (
-          <TouchableOpacity
-            style={[styles.button, styles.editButton]}
-            onPress={() => setIsEditing(true)}
-          >
-            <Text style={styles.buttonText}>Edit Profile</Text>
-          </TouchableOpacity>
+          // View mode - show profile information as read-only fields
+          <>
+            <View style={styles.viewField}>
+              <Text style={styles.viewFieldLabel}>Full Name</Text>
+              <Text style={styles.viewFieldValue}>{profile.fullName}</Text>
+            </View>
+
+            <View style={styles.viewField}>
+              <Text style={styles.viewFieldLabel}>Student ID</Text>
+              <Text style={styles.viewFieldValue}>{profile.studentId}</Text>
+            </View>
+
+            <View style={styles.viewField}>
+              <Text style={styles.viewFieldLabel}>Course</Text>
+              <Text style={styles.viewFieldValue}>{profile.course}</Text>
+            </View>
+
+            <View style={styles.viewField}>
+              <Text style={styles.viewFieldLabel}>Year/Section</Text>
+              <Text style={styles.viewFieldValue}>{profile.yearSection}</Text>
+            </View>
+
+            <View style={styles.viewField}>
+              <Text style={styles.viewFieldLabel}>Email</Text>
+              <Text style={styles.viewFieldValue}>{profile.email}</Text>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, styles.editButton]}
+              onPress={handleEditPress}
+            >
+              <Text style={styles.buttonText}>Edit Profile</Text>
+            </TouchableOpacity>
+          </>
         )}
       </View>
 
-      {/* Group Members */}
+      {/* Group Members Section */}
       <Text style={styles.sectionTitle}>Group Members</Text>
 
       {groupMembers.map((member) => (
