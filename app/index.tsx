@@ -1,8 +1,60 @@
-import { ScrollView, StyleSheet, Text, useColorScheme, View } from "react-native";
+import { router } from "expo-router";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
+import { DashboardCard } from "../components/DashboardCard";
 
+/**
+ * Student Dashboard Screen
+ * Displays welcome message, student info, and quick access cards
+ * Each card navigates to its respective feature screen
+ */
 export default function DashboardScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+
+  // Student information (hardcoded for now, no backend)
+  const studentInfo = {
+    name: "John Doe",
+    course: "Computer Science",
+    section: "B",
+  };
+
+  // Dashboard cards configuration
+  const dashboardCards = [
+    {
+      title: "Grades",
+      icon: "grade" as const,
+      description: "View your grades",
+      onPress: () => router.push("/grades"),
+      backgroundColor: "#4ECDC4",
+    },
+    {
+      title: "Tasks",
+      icon: "checklist" as const,
+      description: "Manage tasks",
+      onPress: () => router.push("/tasks"),
+      backgroundColor: "#FF6B6B",
+    },
+    {
+      title: "Notes",
+      icon: "note" as const,
+      description: "Study notes",
+      onPress: () => router.push("/notes"),
+      backgroundColor: "#FFE66D",
+    },
+    {
+      title: "Profile",
+      icon: "person" as const,
+      description: "Your profile",
+      onPress: () => router.push("/profile"),
+      backgroundColor: "#95E1D3",
+    },
+  ];
 
   const styles = StyleSheet.create({
     container: {
@@ -10,82 +62,116 @@ export default function DashboardScreen() {
       backgroundColor: isDark ? "#1a1a1a" : "#f9f9f9",
     },
     scrollView: {
-      padding: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 20,
     },
-    card: {
-      backgroundColor: isDark ? "#2a2a2a" : "#fff",
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 12,
-      borderLeftWidth: 4,
+    headerContainer: {
+      marginBottom: 24,
     },
-    cardTitle: {
-      fontSize: 16,
+    greeting: {
+      fontSize: 24,
       fontWeight: "bold",
       color: isDark ? "#fff" : "#000",
       marginBottom: 8,
     },
-    cardValue: {
-      fontSize: 28,
-      fontWeight: "bold",
+    studentName: {
+      fontSize: 20,
+      fontWeight: "600",
       color: "#007AFF",
-      marginBottom: 4,
+      marginBottom: 16,
     },
-    cardSubtitle: {
-      fontSize: 14,
+    infoCard: {
+      backgroundColor: isDark ? "#2a2a2a" : "#fff",
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 24,
+      borderLeftWidth: 4,
+      borderLeftColor: "#007AFF",
+    },
+    infoLabel: {
+      fontSize: 12,
+      fontWeight: "600",
       color: isDark ? "#aaa" : "#666",
+      marginBottom: 4,
+      textTransform: "uppercase",
+    },
+    infoValue: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: isDark ? "#fff" : "#000",
+      marginBottom: 12,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: isDark ? "#fff" : "#000",
+      marginBottom: 12,
+      marginTop: 16,
+    },
+    cardsContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      marginHorizontal: -6,
+      marginBottom: 20,
+    },
+    cardWrapper: {
+      width: "50%",
     },
   });
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: "bold",
-            color: isDark ? "#fff" : "#000",
-            marginBottom: 16,
-          }}
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.greeting}>Welcome back! 👋</Text>
+          <Text style={styles.studentName}>{studentInfo.name}</Text>
+        </View>
+
+        {/* Student Information Card */}
+        <View style={styles.infoCard}>
+          <View>
+            <Text style={styles.infoLabel}>Course</Text>
+            <Text style={styles.infoValue}>{studentInfo.course}</Text>
+          </View>
+          <View>
+            <Text style={styles.infoLabel}>Section</Text>
+            <Text style={styles.infoValue}>{studentInfo.section}</Text>
+          </View>
+        </View>
+
+        {/* Quick Access Section */}
+        <Text style={styles.sectionTitle}>Quick Access</Text>
+
+        {/* Dashboard Cards Grid */}
+        <View style={styles.cardsContainer}>
+          {dashboardCards.map((card, index) => (
+            <View key={index} style={styles.cardWrapper}>
+              <DashboardCard
+                title={card.title}
+                icon={card.icon}
+                description={card.description}
+                onPress={card.onPress}
+                backgroundColor={card.backgroundColor}
+              />
+            </View>
+          ))}
+        </View>
+
+        {/* Footer Message */}
+        <View
+          style={[
+            styles.infoCard,
+            { borderLeftColor: "#95E1D3", marginBottom: 40 },
+          ]}
         >
-          Welcome to StudentHub 👋
-        </Text>
-
-        {/* Tasks Overview Card */}
-        <View style={[styles.card, { borderLeftColor: "#FF6B6B" }]}>
-          <Text style={styles.cardTitle}>Pending Tasks</Text>
-          <Text style={styles.cardValue}>5</Text>
-          <Text style={styles.cardSubtitle}>You have 5 tasks to complete</Text>
-        </View>
-
-        {/* Grades Overview Card */}
-        <View style={[styles.card, { borderLeftColor: "#4ECDC4" }]}>
-          <Text style={styles.cardTitle}>Average Grade</Text>
-          <Text style={styles.cardValue}>85%</Text>
-          <Text style={styles.cardSubtitle}>Across 3 courses</Text>
-        </View>
-
-        {/* Notes Overview Card */}
-        <View style={[styles.card, { borderLeftColor: "#FFE66D" }]}>
-          <Text style={styles.cardTitle}>Total Notes</Text>
-          <Text style={styles.cardValue}>12</Text>
-          <Text style={styles.cardSubtitle}>Organized by subject</Text>
-        </View>
-
-        {/* Group Info Card */}
-        <View style={[styles.card, { borderLeftColor: "#95E1D3" }]}>
-          <Text style={styles.cardTitle}>Group Project</Text>
-          <Text style={styles.cardSubtitle}>
-            StudentHub - A college group project by 5 students
-          </Text>
-          <Text
-            style={{
-              fontSize: 12,
-              color: isDark ? "#999" : "#888",
-              marginTop: 8,
-            }}
-          >
-            Navigate using the tabs below to explore all features!
+          <Text style={styles.infoLabel}>💡 Tip</Text>
+          <Text style={styles.infoValue}>
+            Use the tabs at the bottom to navigate between screens, or tap the
+            cards above for quick access.
           </Text>
         </View>
       </ScrollView>
