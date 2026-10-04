@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # StudentHub 📱
 
 A beginner-friendly React Native + Expo mobile app for college students to manage tasks, grades, notes, and group information.
@@ -175,5 +174,3 @@ StudentHub uses local state only:
 
 Start with **[TEAM_ASSIGNMENT_SUMMARY.md](TEAM_ASSIGNMENT_SUMMARY.md)** to understand your role!
 =======
-# studenthub
->>>>>>> eb428c79ea01652028c7aefc2f991f621625ab4b
