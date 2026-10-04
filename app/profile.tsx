@@ -1,13 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    useColorScheme,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useColorScheme,
+  View,
 } from "react-native";
 
 interface StudentProfile {
@@ -24,11 +24,11 @@ export default function ProfileScreen() {
 
   // Student profile state with initial values
   const [profile, setProfile] = useState<StudentProfile>({
-    fullName: "John Doe",
+    fullName: "Mark Anthony Salvador",
     studentId: "2024-001234",
-    course: "Bachelor of Science in Computer Science",
-    yearSection: "3-A",
-    email: "john.doe@university.edu",
+    course: "Bachelor of Science in Information Technology",
+    yearSection: "4-I",
+    email: "markanthonysalvador@gmail.com",
   });
 
   // Temporary state for editing - stores changes before saving
