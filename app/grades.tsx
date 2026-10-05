@@ -5,226 +5,588 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  FlatList,
   useColorScheme,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Colors, Spacing, BorderRadius, Typography } from "../constants";
 
-interface Grade {
-  id: string;
-  course: string;
-  score: number;
+interface CalculationResult {
+  subject: string;
+  prelim: number;
+  midterm: number;
+  semifinal: number;
+  final: number;
+  average: number;
+  status: "PASSED" | "FAILED";
 }
 
 export default function GradesScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const [grades, setGrades] = useState<Grade[]>([
-    { id: "1", course: "Mathematics", score: 88 },
-    { id: "2", course: "English Literature", score: 92 },
-    { id: "3", course: "Physics", score: 78 },
-  ]);
-
-  const [courseName, setCourseName] = useState("");
-  const [courseScore, setCourseScore] = useState("");
+  // State for grade inputs
+  const [subject, setSubject] = useState("");
+  const [prelim, setPrelim] = useState("");
+  const [midterm, setMidterm] = useState("");
+  const [semifinal, setSemifinal] = useState("");
+  const [finalGrade, setFinalGrade] = useState("");
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<CalculationResult | null>(null);
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDark ? "#1a1a1a" : "#f9f9f9",
+      backgroundColor: isDark ? Colors.dark.background : Colors.light.background,
     },
     content: {
-      padding: 16,
+      padding: Spacing.lg,
+      paddingBottom: Spacing.xl,
     },
-    card: {
-      backgroundColor: isDark ? "#2a2a2a" : "#fff",
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 16,
+    header: {
+      marginBottom: Spacing.xl,
+      alignItems: "center",
     },
-    inputGroup: {
-      marginBottom: 12,
-    },
-    label: {
-      fontSize: 14,
-      fontWeight: "600",
-      color: isDark ? "#ddd" : "#333",
-      marginBottom: 6,
-    },
-    input: {
-      backgroundColor: isDark ? "#1a1a1a" : "#f5f5f5",
-      borderRadius: 8,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      color: isDark ? "#fff" : "#000",
-      borderWidth: 1,
-      borderColor: isDark ? "#444" : "#ddd",
-      marginBottom: 8,
-    },
-    inputRow: {
-      flexDirection: "row",
-      gap: 8,
-      marginTop: 8,
-    },
-    addButton: {
-      backgroundColor: "#007AFF",
-      borderRadius: 8,
-      paddingVertical: 10,
-      paddingHorizontal: 16,
+    headerIconContainer: {
+      width: 64,
+      height: 64,
+      borderRadius: BorderRadius.xl,
+      backgroundColor: Colors.primary,
       justifyContent: "center",
       alignItems: "center",
+      marginBottom: Spacing.md,
+    },
+    headerTitle: {
+      fontSize: Typography.sizes.h2,
+      fontWeight: Typography.weights.bold,
+      color: isDark ? Colors.dark.text : Colors.light.text,
+      marginBottom: Spacing.sm,
+      textAlign: "center",
+    },
+    headerSubtitle: {
+      fontSize: Typography.sizes.body,
+      color: isDark ? Colors.dark.textSecondary : Colors.light.textSecondary,
+      textAlign: "center",
+    },
+    card: {
+      backgroundColor: isDark ? Colors.dark.card : Colors.light.card,
+      borderRadius: BorderRadius.lg,
+      padding: Spacing.lg,
+      marginBottom: Spacing.lg,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    sectionTitle: {
+      fontSize: Typography.sizes.h4,
+      fontWeight: Typography.weights.semibold,
+      color: isDark ? Colors.dark.text : Colors.light.text,
+      marginBottom: Spacing.lg,
+    },
+    inputGroup: {
+      marginBottom: Spacing.md,
+    },
+    inputLabel: {
+      fontSize: Typography.sizes.h6,
+      fontWeight: Typography.weights.semibold,
+      color: isDark ? Colors.dark.text : Colors.light.text,
+      marginBottom: Spacing.sm,
+      flexDirection: "row",
+      display: "flex",
+    },
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: isDark ? Colors.dark.background : Colors.light.background,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: isDark ? Colors.dark.border : Colors.light.border,
+      paddingHorizontal: Spacing.md,
+      height: 48,
+    },
+    inputIcon: {
+      marginRight: Spacing.sm,
+    },
+    input: {
+      flex: 1,
+      color: isDark ? Colors.dark.text : Colors.light.text,
+      fontSize: Typography.sizes.body,
+      paddingVertical: Spacing.md,
+    },
+    errorMessage: {
+      backgroundColor: Colors.error,
+      color: "#fff",
+      padding: Spacing.md,
+      borderRadius: BorderRadius.md,
+      marginBottom: Spacing.lg,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    errorText: {
+      color: "#fff",
+      fontSize: Typography.sizes.body,
+      fontWeight: Typography.weights.semibold,
+      marginLeft: Spacing.sm,
       flex: 1,
     },
-    addButtonText: {
-      color: "#fff",
-      fontWeight: "bold",
-      fontSize: 14,
+    errorIcon: {
+      marginRight: Spacing.sm,
     },
-    gradeCard: {
-      backgroundColor: isDark ? "#2a2a2a" : "#fff",
-      borderRadius: 8,
-      padding: 12,
-      marginBottom: 8,
+    calculateButton: {
+      backgroundColor: Colors.primary,
+      borderRadius: BorderRadius.md,
+      height: 52,
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "row",
+      marginBottom: Spacing.lg,
+    },
+    calculateButtonText: {
+      color: "#fff",
+      fontSize: Typography.sizes.h5,
+      fontWeight: Typography.weights.semibold,
+      marginLeft: Spacing.sm,
+    },
+    resultCard: {
+      backgroundColor: isDark ? Colors.dark.card : Colors.light.card,
+      borderRadius: BorderRadius.lg,
+      padding: Spacing.lg,
+      marginBottom: Spacing.lg,
+      borderTopWidth: 4,
+      borderTopColor: Colors.success,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    resultTitle: {
+      fontSize: Typography.sizes.h6,
+      fontWeight: Typography.weights.semibold,
+      color: isDark ? Colors.dark.textSecondary : Colors.light.textSecondary,
+      marginBottom: Spacing.md,
+      textAlign: "center",
+    },
+    resultSubject: {
+      fontSize: Typography.sizes.h4,
+      fontWeight: Typography.weights.bold,
+      color: isDark ? Colors.dark.text : Colors.light.text,
+      marginBottom: Spacing.lg,
+      textAlign: "center",
+    },
+    gradeItemsContainer: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center",
-      borderLeftWidth: 4,
+      marginBottom: Spacing.lg,
+      paddingBottom: Spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: isDark ? Colors.dark.border : Colors.light.border,
     },
-    gradeInfo: {
+    gradeItem: {
+      alignItems: "center",
       flex: 1,
     },
-    courseName: {
-      fontSize: 16,
-      fontWeight: "bold",
-      color: isDark ? "#fff" : "#000",
-      marginBottom: 4,
+    gradeItemLabel: {
+      fontSize: Typography.sizes.caption,
+      fontWeight: Typography.weights.semibold,
+      color: isDark ? Colors.dark.textSecondary : Colors.light.textSecondary,
+      marginBottom: Spacing.sm,
+      textTransform: "uppercase",
     },
-    scoreText: {
-      fontSize: 20,
-      fontWeight: "bold",
-      color: "#007AFF",
+    gradeItemValue: {
+      fontSize: Typography.sizes.h3,
+      fontWeight: Typography.weights.bold,
+      color: Colors.primary,
     },
-    deleteButton: {
-      padding: 8,
+    finalGradeContainer: {
+      alignItems: "center",
+      marginBottom: Spacing.lg,
     },
-    statsText: {
-      fontSize: 14,
-      color: isDark ? "#aaa" : "#666",
-      marginBottom: 12,
+    finalGradeLabel: {
+      fontSize: Typography.sizes.h6,
+      fontWeight: Typography.weights.semibold,
+      color: isDark ? Colors.dark.textSecondary : Colors.light.textSecondary,
+      marginBottom: Spacing.sm,
+      textTransform: "uppercase",
     },
-    emptyText: {
-      textAlign: "center",
-      color: isDark ? "#888" : "#aaa",
-      marginTop: 32,
-      fontSize: 16,
+    finalGradeValue: {
+      fontSize: 52,
+      fontWeight: Typography.weights.black,
+      color: Colors.primary,
+      marginBottom: Spacing.md,
+    },
+    statusContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: Spacing.md,
+      paddingHorizontal: Spacing.lg,
+      borderRadius: BorderRadius.md,
+      backgroundColor: isDark
+        ? Colors.dark.background
+        : Colors.light.background,
+    },
+    statusText: {
+      fontSize: Typography.sizes.h5,
+      fontWeight: Typography.weights.bold,
+      marginLeft: Spacing.sm,
+    },
+    statusPassed: {
+      color: Colors.success,
+    },
+    statusFailed: {
+      color: Colors.error,
+    },
+    calculateAgainButton: {
+      backgroundColor: Colors.secondary,
+      borderRadius: BorderRadius.md,
+      height: 48,
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "row",
+    },
+    calculateAgainButtonText: {
+      color: "#fff",
+      fontSize: Typography.sizes.h5,
+      fontWeight: Typography.weights.semibold,
+      marginLeft: Spacing.sm,
     },
   });
 
-  const addGrade = () => {
-    if (courseName.trim() && courseScore.trim()) {
-      const score = parseFloat(courseScore);
-      if (!isNaN(score) && score >= 0 && score <= 100) {
-        setGrades([
-          ...grades,
-          { id: Date.now().toString(), course: courseName, score },
-        ]);
-        setCourseName("");
-        setCourseScore("");
-      }
+  // Validation function
+  const validateInputs = (): boolean => {
+    setError("");
+
+    if (!subject.trim()) {
+      setError("Please enter your subject.");
+      return false;
     }
+
+    if (!prelim.trim() || !midterm.trim() || !semifinal.trim() || !finalGrade.trim()) {
+      setError("Please enter all four grades.");
+      return false;
+    }
+
+    const prelimNum = parseFloat(prelim);
+    const midtermNum = parseFloat(midterm);
+    const semifinalNum = parseFloat(semifinal);
+    const finalNum = parseFloat(finalGrade);
+
+    if (isNaN(prelimNum) || isNaN(midtermNum) || isNaN(semifinalNum) || isNaN(finalNum)) {
+      setError("Grades must be valid numbers.");
+      return false;
+    }
+
+    if (
+      prelimNum < 0 ||
+      prelimNum > 100 ||
+      midtermNum < 0 ||
+      midtermNum > 100 ||
+      semifinalNum < 0 ||
+      semifinalNum > 100 ||
+      finalNum < 0 ||
+      finalNum > 100
+    ) {
+      setError("Please enter a valid grade between 0 and 100.");
+      return false;
+    }
+
+    return true;
   };
 
-  const deleteGrade = (id: string) => {
-    setGrades(grades.filter((g) => g.id !== id));
+  // Calculate grade
+  const handleCalculate = () => {
+    if (!validateInputs()) {
+      return;
+    }
+
+    const prelimNum = parseFloat(prelim);
+    const midtermNum = parseFloat(midterm);
+    const semifinalNum = parseFloat(semifinal);
+    const finalNum = parseFloat(finalGrade);
+    const average =
+      Math.round(
+        ((prelimNum + midtermNum + semifinalNum + finalNum) / 4) * 100
+      ) / 100;
+    const status = average >= 75 ? "PASSED" : "FAILED";
+
+    setResult({
+      subject,
+      prelim: prelimNum,
+      midterm: midtermNum,
+      semifinal: semifinalNum,
+      final: finalNum,
+      average,
+      status,
+    });
   };
 
-  const averageGrade =
-    grades.length > 0
-      ? (grades.reduce((sum, g) => sum + g.score, 0) / grades.length).toFixed(1)
-      : 0;
-
-  const getGradeColor = (score: number) => {
-    if (score >= 90) return "#4ECDC4";
-    if (score >= 80) return "#95E1D3";
-    if (score >= 70) return "#FFE66D";
-    return "#FF6B6B";
+  // Calculate again
+  const handleCalculateAgain = () => {
+    setSubject("");
+    setPrelim("");
+    setMidterm("");
+    setSemifinal("");
+    setFinalGrade("");
+    setError("");
+    setResult(null);
   };
 
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Average Grade */}
-      <View style={styles.card}>
-        <Text style={styles.label}>Overall Average</Text>
-        <Text style={{ fontSize: 36, fontWeight: "bold", color: "#007AFF" }}>
-          {averageGrade}%
-        </Text>
-        <Text style={styles.statsText}>
-          {grades.length} course{grades.length !== 1 ? "s" : ""}
-        </Text>
-      </View>
+  // Show result view
+  if (result) {
+    return (
+      <ScrollView style={styles.container}>
+        <View style={styles.content}>
+          <View style={styles.resultCard}>
+            <Text style={styles.resultTitle}>GRADE RESULT</Text>
+            <Text style={styles.resultSubject}>{result.subject}</Text>
 
-      {/* Add Grade Form */}
-      <View style={styles.card}>
-        <Text style={styles.label}>Add a New Grade</Text>
+            <View style={styles.gradeItemsContainer}>
+              <View style={styles.gradeItem}>
+                <Text style={styles.gradeItemLabel}>Prelim</Text>
+                <Text style={styles.gradeItemValue}>{result.prelim}</Text>
+              </View>
+              <View style={styles.gradeItem}>
+                <Text style={styles.gradeItemLabel}>Midterm</Text>
+                <Text style={styles.gradeItemValue}>{result.midterm}</Text>
+              </View>
+              <View style={styles.gradeItem}>
+                <Text style={styles.gradeItemLabel}>SemiFinal</Text>
+                <Text style={styles.gradeItemValue}>{result.semifinal}</Text>
+              </View>
+              <View style={styles.gradeItem}>
+                <Text style={styles.gradeItemLabel}>Final</Text>
+                <Text style={styles.gradeItemValue}>{result.final}</Text>
+              </View>
+            </View>
 
-        <View style={styles.inputGroup}>
-          <TextInput
-            style={styles.input}
-            placeholder="Course name (e.g., Mathematics)"
-            placeholderTextColor={isDark ? "#666" : "#999"}
-            value={courseName}
-            onChangeText={setCourseName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Score (0-100)"
-            placeholderTextColor={isDark ? "#666" : "#999"}
-            value={courseScore}
-            onChangeText={setCourseScore}
-            keyboardType="decimal-pad"
-          />
+            <View style={styles.finalGradeContainer}>
+              <Text style={styles.finalGradeLabel}>Final Grade</Text>
+              <Text style={styles.finalGradeValue}>{result.average}</Text>
+            </View>
 
-          <TouchableOpacity style={styles.addButton} onPress={addGrade}>
-            <Text style={styles.addButtonText}>+ Add Grade</Text>
+            <View style={styles.statusContainer}>
+              {result.status === "PASSED" ? (
+                <>
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={28}
+                    color={Colors.success}
+                  />
+                  <Text style={[styles.statusText, styles.statusPassed]}>
+                    {result.status}
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons
+                    name="close-circle-outline"
+                    size={28}
+                    color={Colors.error}
+                  />
+                  <Text style={[styles.statusText, styles.statusFailed]}>
+                    {result.status}
+                  </Text>
+                </>
+              )}
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.calculateAgainButton}
+            onPress={handleCalculateAgain}
+          >
+            <Ionicons name="refresh-outline" size={20} color="#fff" />
+            <Text style={styles.calculateAgainButtonText}>Calculate Again</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
+    );
+  }
 
-      {/* Grade List */}
-      <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 8, color: isDark ? "#fff" : "#000" }}>
-        Your Grades
-      </Text>
-
-      {grades.length === 0 ? (
-        <Text style={styles.emptyText}>No grades yet. Add one to get started!</Text>
-      ) : (
-        <FlatList
-          data={grades}
-          scrollEnabled={false}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View
-              style={[
-                styles.gradeCard,
-                { borderLeftColor: getGradeColor(item.score) },
-              ]}
-            >
-              <View style={styles.gradeInfo}>
-                <Text style={styles.courseName}>{item.course}</Text>
-                <Text style={styles.scoreText}>{item.score}%</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => deleteGrade(item.id)}
-              >
-                <MaterialIcons name="delete" size={20} color="#FF6B6B" />
-              </TouchableOpacity>
+  // Show calculator view
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView style={styles.container}>
+        <View style={styles.content}>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.headerIconContainer}>
+              <MaterialCommunityIcons
+                name="calculator"
+                size={32}
+                color="#fff"
+              />
             </View>
-          )}
-        />
-      )}
-    </ScrollView>
+            <Text style={styles.headerTitle}>Grade Calculator</Text>
+            <Text style={styles.headerSubtitle}>
+              Calculate your final subject grade
+            </Text>
+          </View>
+
+          {/* Error Message */}
+          {error ? (
+            <View style={styles.errorMessage}>
+              <Ionicons
+                name="alert-circle-outline"
+                size={20}
+                color="#fff"
+                style={styles.errorIcon}
+              />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          ) : null}
+
+          {/* Calculator Card */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Enter Your Grades</Text>
+
+            {/* Subject Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Subject</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="book-outline"
+                  size={20}
+                  color={isDark ? Colors.dark.textSecondary : Colors.light.textSecondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. ITB101"
+                  placeholderTextColor={
+                    isDark
+                      ? Colors.dark.textSecondary
+                      : Colors.light.textSecondary
+                  }
+                  value={subject}
+                  onChangeText={setSubject}
+                />
+              </View>
+            </View>
+
+            {/* Prelim Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Prelim</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="school-outline"
+                  size={20}
+                  color={isDark ? Colors.dark.textSecondary : Colors.light.textSecondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="0-100"
+                  placeholderTextColor={
+                    isDark
+                      ? Colors.dark.textSecondary
+                      : Colors.light.textSecondary
+                  }
+                  value={prelim}
+                  onChangeText={setPrelim}
+                  keyboardType="decimal-pad"
+                />
+              </View>
+            </View>
+
+            {/* Midterm Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Midterm</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="document-text-outline"
+                  size={20}
+                  color={isDark ? Colors.dark.textSecondary : Colors.light.textSecondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="0-100"
+                  placeholderTextColor={
+                    isDark
+                      ? Colors.dark.textSecondary
+                      : Colors.light.textSecondary
+                  }
+                  value={midterm}
+                  onChangeText={setMidterm}
+                  keyboardType="decimal-pad"
+                />
+              </View>
+            </View>
+
+            {/* SemiFinal Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>SemiFinal</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="star-outline"
+                  size={20}
+                  color={isDark ? Colors.dark.textSecondary : Colors.light.textSecondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="0-100"
+                  placeholderTextColor={
+                    isDark
+                      ? Colors.dark.textSecondary
+                      : Colors.light.textSecondary
+                  }
+                  value={semifinal}
+                  onChangeText={setSemifinal}
+                  keyboardType="decimal-pad"
+                />
+              </View>
+            </View>
+
+            {/* Final Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Final</Text>
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="ribbon-outline"
+                  size={20}
+                  color={isDark ? Colors.dark.textSecondary : Colors.light.textSecondary}
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="0-100"
+                  placeholderTextColor={
+                    isDark
+                      ? Colors.dark.textSecondary
+                      : Colors.light.textSecondary
+                  }
+                  value={finalGrade}
+                  onChangeText={setFinalGrade}
+                  keyboardType="decimal-pad"
+                />
+              </View>
+            </View>
+
+            {/* Calculate Button */}
+            <TouchableOpacity
+              style={styles.calculateButton}
+              onPress={handleCalculate}
+            >
+              <MaterialCommunityIcons
+                name="calculator"
+                size={20}
+                color="#fff"
+              />
+              <Text style={styles.calculateButtonText}>Calculate Grade</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
