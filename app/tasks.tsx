@@ -1,22 +1,3 @@
-/**
- * Student Task Manager Screen
- *
- * This screen implements a fully-functional academic task management system
- * for the StudentHub application. Students can create, complete, and delete
- * tasks with real-time statistics and visual feedback.
- *
- * Features:
- * - Create tasks with title and subject classification
- * - Mark tasks as complete/incomplete with visual indicators
- * - Delete tasks with confirmation
- * - Real-time task counters (Total, Completed, Pending)
- * - Dark/Light mode support
- * - Responsive design for iOS, Android, and Web
- *
- * Built with: React Native, Expo, TypeScript
- * Dependencies: @expo/vector-icons, react-native
- */
-
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -38,14 +19,6 @@ import {
   Typography,
 } from "../constants";
 
-/**
- * Task interface represents a single academic task
- * @interface Task
- * @property {string} id - Unique identifier (timestamp-based)
- * @property {string} title - Task name/description
- * @property {string} subject - Subject/course category
- * @property {boolean} completed - Completion status
- */
 interface Task {
   id: string;
   title: string;
@@ -57,12 +30,6 @@ export default function TasksScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  /**
-   * State for managing the list of tasks
-   * Initialized with 6 sample tasks for demonstration
-   * - 1 completed task (Math Assignment)
-   * - 5 pending tasks (various subjects)
-   */
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: "1",
@@ -102,18 +69,7 @@ export default function TasksScreen() {
     },
   ]);
 
-  /**
-   * Modal visibility state
-   * Controls whether the "Add Task" modal is shown
-   */
   const [showModal, setShowModal] = useState(false);
-
-  /**
-   * Form input states
-   * newTaskTitle: User input for task title
-   * newTaskSubject: User input for subject/category
-   * modalError: Error message for validation failures
-   */
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskSubject, setNewTaskSubject] = useState("");
   const [modalError, setModalError] = useState("");
@@ -330,48 +286,22 @@ export default function TasksScreen() {
     },
   });
 
-  /**
-   * Calculates the number of completed tasks
-   * Used for real-time statistics display
-   */
   const completedCount = tasks.filter((t) => t.completed).length;
-
-  /**
-   * Calculates the number of pending tasks
-   * Formula: Total tasks - Completed tasks
-   */
   const pendingCount = tasks.length - completedCount;
 
-  /**
-   * Adds a new task to the task list
-   *
-   * Validation:
-   * - Task title must not be empty or whitespace-only
-   * - Subject must not be empty or whitespace-only
-   *
-   * Process:
-   * 1. Clear any previous error messages
-   * 2. Validate both fields
-   * 3. Create new Task object with timestamp-based unique ID
-   * 4. Add to tasks array
-   * 5. Reset form fields and close modal
-   */
   const addTask = () => {
     setModalError("");
 
-    // Validate task title
     if (!newTaskTitle.trim()) {
       setModalError("Task title is required");
       return;
     }
 
-    // Validate subject
     if (!newTaskSubject.trim()) {
       setModalError("Subject is required");
       return;
     }
 
-    // Create new task object
     const newTask: Task = {
       id: Date.now().toString(),
       title: newTaskTitle.trim(),
@@ -379,21 +309,12 @@ export default function TasksScreen() {
       completed: false,
     };
 
-    // Add task to array and reset form
     setTasks([...tasks, newTask]);
     setNewTaskTitle("");
     setNewTaskSubject("");
     setShowModal(false);
   };
 
-  /**
-   * Toggles the completion status of a task
-   *
-   * @param {string} id - The unique identifier of the task to toggle
-   *
-   * Maps through tasks array and flips the 'completed' boolean
-   * for the task matching the provided ID
-   */
   const toggleTaskCompletion = (id: string) => {
     setTasks(
       tasks.map((task) =>
@@ -402,31 +323,10 @@ export default function TasksScreen() {
     );
   };
 
-  /**
-   * Removes a task from the task list
-   *
-   * @param {string} id - The unique identifier of the task to delete
-   *
-   * Filters out the task with matching ID, removing it permanently
-   * from the state
-   */
   const deleteTask = (id: string) => {
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  /**
-   * Closes the modal and resets form state
-   *
-   * Called when:
-   * - User clicks Cancel button
-   * - User taps outside the modal
-   *
-   * Resets:
-   * - Modal visibility
-   * - Task title input
-   * - Subject input
-   * - Error message
-   */
   const closeModal = () => {
     setShowModal(false);
     setNewTaskTitle("");
@@ -437,16 +337,10 @@ export default function TasksScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* HEADER SECTION */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>My Tasks</Text>
         </View>
 
-        {/* STATISTICS SECTION
-            Displays real-time task counters in a card-based layout
-            Three metrics: Total, Completed, Pending
-            Updates automatically as tasks are added/removed/toggled
-        */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
             <MaterialCommunityIcons
@@ -477,11 +371,6 @@ export default function TasksScreen() {
           </View>
         </View>
 
-        {/* ADD TASK BUTTON
-            Prominent call-to-action button that opens modal dialog
-            Uses primary color to draw attention
-            Includes icon for visual clarity
-        */}
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowModal(true)}
@@ -494,14 +383,8 @@ export default function TasksScreen() {
           <Text style={styles.addButtonText}>Add Task</Text>
         </TouchableOpacity>
 
-        {/* TASK LIST OR EMPTY STATE
-            Conditional rendering:
-            - If no tasks: Show empty state with icon and message
-            - If tasks exist: Show FlatList with all tasks
-        */}
         <View style={styles.taskListContainer}>
           {tasks.length === 0 ? (
-            // Empty State: Professional messaging when no tasks exist
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIcon}>
                 <MaterialCommunityIcons
@@ -520,24 +403,16 @@ export default function TasksScreen() {
               </Text>
             </View>
           ) : (
-            // Task List: Renders all tasks with FlatList for performance
             <FlatList
               data={tasks}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                // Individual Task Card
                 <View
                   style={[
                     styles.taskCard,
-                    // Apply completed styling if task is marked complete
                     item.completed && styles.taskCardCompleted,
                   ]}
                 >
-                  {/* CHECKBOX / COMPLETION TOGGLE
-                      - Square icon: Task is pending
-                      - Check circle: Task is completed
-                      - Tap to toggle status
-                  */}
                   <TouchableOpacity
                     style={styles.checkboxContainer}
                     onPress={() => toggleTaskCompletion(item.id)}
@@ -555,15 +430,10 @@ export default function TasksScreen() {
                     />
                   </TouchableOpacity>
 
-                  {/* TASK CONTENT
-                      - Title: Main task description (strikethrough if completed)
-                      - Subject: Course/subject category
-                  */}
                   <View style={styles.taskContent}>
                     <Text
                       style={[
                         styles.taskTitle,
-                        // Strike through completed tasks for visual clarity
                         item.completed && styles.taskTitleCompleted,
                       ]}
                     >
@@ -572,10 +442,6 @@ export default function TasksScreen() {
                     <Text style={styles.taskSubject}>{item.subject}</Text>
                   </View>
 
-                  {/* DELETE BUTTON
-                      - Trash icon in error red color
-                      - Permanent deletion on tap
-                  */}
                   <View style={styles.taskActions}>
                     <TouchableOpacity
                       style={styles.deleteButton}
@@ -597,12 +463,6 @@ export default function TasksScreen() {
         </View>
       </View>
 
-      {/* ADD TASK MODAL
-          Overlay modal with form inputs for adding new task
-          - Input validation
-          - Error message display
-          - Cancel / Add buttons
-      */}
       <Modal
         visible={showModal}
         animationType="fade"
@@ -613,7 +473,6 @@ export default function TasksScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add New Task</Text>
 
-            {/* Task Title Input */}
             <Text style={styles.modalInputLabel}>Task Title</Text>
             <TextInput
               style={styles.modalInput}
@@ -627,7 +486,6 @@ export default function TasksScreen() {
               onChangeText={setNewTaskTitle}
             />
 
-            {/* Subject Input */}
             <Text style={styles.modalInputLabel}>Subject</Text>
             <TextInput
               style={styles.modalInput}
@@ -641,12 +499,10 @@ export default function TasksScreen() {
               onChangeText={setNewTaskSubject}
             />
 
-            {/* Error Message Display */}
             {modalError ? (
               <Text style={styles.errorText}>{modalError}</Text>
             ) : null}
 
-            {/* Modal Action Buttons */}
             <View style={styles.modalButtonContainer}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonSecondary]}
