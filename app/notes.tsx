@@ -1,16 +1,16 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useState } from "react";
 import {
-  View,
-  Text,
+  FlatList,
+  Modal,
+  SafeAreaView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
   useColorScheme,
-  SafeAreaView,
-  Modal,
+  View,
 } from "react-native";
-import { useState } from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   BorderRadius,
   Colors,

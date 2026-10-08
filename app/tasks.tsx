@@ -10,6 +10,15 @@ import {
   TouchableOpacity,
   useColorScheme,
   View,
+    FlatList,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    useColorScheme,
+    View,
+    Image,
+    ScrollView,
 } from "react-native";
 import {
   BorderRadius,
@@ -67,6 +76,9 @@ export default function TasksScreen() {
       subject: "English",
       completed: false,
     },
+    { id: "3", title: "Submit Project Report", completed: false },
+    { id: "4", title: "Prepare for Quiz", completed: false },
+    { id: "5", title: "Laravel Projet", completed: false },
   ]);
 
   const [showModal, setShowModal] = useState(false);
@@ -96,6 +108,30 @@ export default function TasksScreen() {
       marginBottom: Spacing.sm,
     },
     statsContainer: {
+    headerImage: {
+      width: "100%",
+      height: 180,
+      borderRadius: 12,
+      marginBottom: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 4,
+      resizeMode: "cover",
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: isDark ? "#fff" : "#000",
+      marginBottom: 12,
+    },
+    headerSubtitle: {
+      fontSize: 14,
+      color: isDark ? "#aaa" : "#666",
+      marginBottom: 16,
+    },
+    inputContainer: {
       flexDirection: "row",
       gap: Spacing.md,
       marginBottom: Spacing.lg,
@@ -313,6 +349,10 @@ export default function TasksScreen() {
     setNewTaskTitle("");
     setNewTaskSubject("");
     setShowModal(false);
+    if (newTask.trim()) {
+      setTasks([{ id: Date.now().toString(), title: newTask, completed: false }, ...tasks]);
+      setNewTask("");
+    }
   };
 
   const toggleTaskCompletion = (id: string) => {
@@ -382,6 +422,43 @@ export default function TasksScreen() {
           />
           <Text style={styles.addButtonText}>Add Task</Text>
         </TouchableOpacity>
+    <View style={styles.container}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Header Image */}
+        <Image
+          source={require("../assets/images/fortask.jpg")}
+          style={styles.headerImage}
+          resizeMode="cover"
+        />
+
+        <Text style={styles.headerTitle}>My Tasks</Text>
+        <Text style={styles.headerSubtitle}>Stay organized and track your progress</Text>
+
+        {/* Task Stats */}
+        <Text
+          style={{
+            fontSize: 14,
+            color: isDark ? "#aaa" : "#666",
+            marginBottom: 12,
+          }}
+        >
+          {completedCount} of {tasks.length} completed
+        </Text>
+
+        {/* Input for new task */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Add a new task..."
+            placeholderTextColor={isDark ? "#666" : "#999"}
+            value={newTask}
+            onChangeText={setNewTask}
+            onSubmitEditing={addTask}
+          />
+          <TouchableOpacity style={styles.addButton} onPress={addTask}>
+            <MaterialIcons name="add" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.taskListContainer}>
           {tasks.length === 0 ? (
@@ -528,5 +605,26 @@ export default function TasksScreen() {
         </View>
       </Modal>
     </SafeAreaView>
+                  <Text
+                    style={[
+                      styles.taskText,
+                      item.completed && styles.taskTextCompleted,
+                    ]}
+                  >
+                    {item.title}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => deleteTask(item.id)}
+                >
+                  <MaterialIcons name="delete" size={20} color="#FF6B6B" />
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        )}
+      </ScrollView>
+    </View>
   );
 }
