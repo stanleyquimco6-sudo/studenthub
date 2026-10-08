@@ -23,11 +23,9 @@ export default function TasksScreen() {
   const isDark = colorScheme === "dark";
 
   const [tasks, setTasks] = useState<Task[]>([
-    { id: "1", title: "Read Chapter 3 of Textbook", completed: false },
-    { id: "2", title: "Complete Math Assignment", completed: true },
     { id: "3", title: "Submit Project Report", completed: false },
     { id: "4", title: "Prepare for Quiz", completed: false },
-    { id: "5", title: "Group Meeting - Monday 3PM", completed: false },
+    { id: "5", title: "Laravel Projet", completed: false },
   ]);
 
   const [newTask, setNewTask] = useState("");
@@ -123,7 +121,7 @@ export default function TasksScreen() {
 
   const addTask = () => {
     if (newTask.trim()) {
-      setTasks([...tasks, { id: Date.now().toString(), title: newTask, completed: false }]);
+      setTasks([{ id: Date.now().toString(), title: newTask, completed: false }, ...tasks]);
       setNewTask("");
     }
   };

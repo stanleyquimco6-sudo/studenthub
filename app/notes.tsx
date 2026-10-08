@@ -26,21 +26,15 @@ export default function NotesScreen() {
   const [notes, setNotes] = useState<Note[]>([
     {
       id: "1",
-      subject: "Mathematics",
-      title: "Calculus Chapter 2",
-      content: "Key concepts about derivatives and limits",
+      subject: "Soc Sci 104",
+      title: "Reporting KeyPoints",
+      content: "Legal Grounds, Statement of Facts",
     },
     {
       id: "2",
-      subject: "English",
-      title: "Shakespeare Notes",
-      content: "Important themes in Hamlet",
-    },
-    {
-      id: "3",
-      subject: "Physics",
-      title: "Quantum Mechanics",
-      content: "Introduction to quantum theory",
+      subject: "ITM 112",
+      title: "Laravel Migrations",
+      content: "php artisan make:migration create_students_table",
     },
   ]);
 
@@ -177,8 +171,8 @@ export default function NotesScreen() {
   const addNote = () => {
     if (subject.trim() && title.trim() && content.trim()) {
       setNotes([
-        ...notes,
         { id: Date.now().toString(), subject, title, content },
+        ...notes,
       ]);
       setSubject("");
       setTitle("");

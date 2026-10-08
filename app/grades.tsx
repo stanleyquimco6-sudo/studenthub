@@ -12,8 +12,10 @@ import {
   SafeAreaView,
   Image,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { Audio } from "expo-av";
 
 interface StudySession {
   id: string;
@@ -37,8 +39,8 @@ export default function StudyPlannerScreen() {
   const [sessions, setSessions] = useState<StudySession[]>([
     {
       id: "1",
-      subject: "Web Development",
-      topic: "React Native Navigation",
+      subject: "Laravel",
+      topic: "APIs",
       date: today,
       time: "4:00 PM",
       duration: 60,
@@ -48,7 +50,7 @@ export default function StudyPlannerScreen() {
     {
       id: "2",
       subject: "Database Systems",
-      topic: "SQL Relationships",
+      topic: "ERD",
       date: today,
       time: "7:00 PM",
       duration: 45,
@@ -68,28 +70,22 @@ export default function StudyPlannerScreen() {
     {
       id: "4",
       subject: "Programming",
-      topic: "TypeScript Basics",
+      topic: "PHP",
       date: nextDay,
       time: "5:00 PM",
       duration: 90,
       priority: "High",
       completed: false,
     },
-    {
-      id: "5",
-      subject: "System Analysis",
-      topic: "Design Patterns",
-      date: today,
-      time: "2:00 PM",
-      duration: 45,
-      priority: "Medium",
-      completed: true,
-    },
   ]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [timerSessionId, setTimerSessionId] = useState<string | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [formData, setFormData] = useState({
     subject: "",
     topic: "",
@@ -305,6 +301,89 @@ export default function StudyPlannerScreen() {
       paddingBottom: 24,
       paddingTop: 16,
       maxHeight: "90%",
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+    },
+    scrollViewContent: {
+      paddingBottom: 16,
+    },
+    timerModal: {
+      flex: 1,
+      backgroundColor: "#00000080",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    timerContainer: {
+      backgroundColor: isDark ? "#2a2a2a" : "#fff",
+      borderRadius: 20,
+      padding: 30,
+      alignItems: "center",
+      width: "85%",
+    },
+    timerTitle: {
+      fontSize: 20,
+      fontWeight: "bold",
+      color: isDark ? "#fff" : "#000",
+      marginBottom: 8,
+    },
+    timerSubtitle: {
+      fontSize: 14,
+      color: isDark ? "#aaa" : "#666",
+      marginBottom: 20,
+    },
+    timerDisplay: {
+      fontSize: 64,
+      fontWeight: "bold",
+      color: "#007AFF",
+      marginBottom: 20,
+      fontFamily: "monospace",
+    },
+    timerControlsRow: {
+      flexDirection: "row",
+      gap: 12,
+      marginBottom: 16,
+      flexWrap: "wrap",
+      justifyContent: "center",
+    },
+    timerButton: {
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 10,
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: 100,
+    },
+    timerPlayButton: {
+      backgroundColor: "#007AFF",
+    },
+    timerPauseButton: {
+      backgroundColor: "#FFD700",
+    },
+    timerStopButton: {
+      backgroundColor: "#FF6B6B",
+      width: "100%",
+      marginTop: 8,
+    },
+    timerCompleteButton: {
+      backgroundColor: "#4ECDC4",
+    },
+    timerButtonText: {
+      color: "#fff",
+      fontWeight: "bold",
+      fontSize: 14,
+    },
+    timerProgressBar: {
+      width: "100%",
+      height: 6,
+      backgroundColor: isDark ? "#444" : "#eee",
+      borderRadius: 3,
+      overflow: "hidden",
+      marginBottom: 16,
+    },
+    timerProgressFill: {
+      height: "100%",
+      backgroundColor: "#007AFF",
     },
     modalHeader: {
       flexDirection: "row",
@@ -348,12 +427,15 @@ export default function StudyPlannerScreen() {
       backgroundColor: "#00000080",
       justifyContent: "center",
       alignItems: "center",
+      paddingHorizontal: 16,
     },
     calendarContainer: {
       backgroundColor: isDark ? "#2a2a2a" : "#fff",
       borderRadius: 16,
       padding: 20,
-      width: "85%",
+      width: "100%",
+      maxWidth: 400,
+      maxHeight: "80%",
     },
     calendarHeader: {
       flexDirection: "row",
@@ -418,6 +500,9 @@ export default function StudyPlannerScreen() {
       flexDirection: "row",
       gap: 8,
       marginTop: 20,
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: isDark ? "#444" : "#eee",
     },
     saveButton: {
       flex: 1,
@@ -554,7 +639,6 @@ export default function StudyPlannerScreen() {
       );
     } else {
       setSessions([
-        ...sessions,
         {
           id: Date.now().toString(),
           subject: formData.subject,
@@ -565,6 +649,7 @@ export default function StudyPlannerScreen() {
           priority: formData.priority,
           completed: false,
         },
+        ...sessions,
       ]);
     }
 
@@ -579,10 +664,157 @@ export default function StudyPlannerScreen() {
     setSessions(sessions.filter((s) => s.id !== id));
   };
 
+  const startTimer = (sessionId: string, durationMinutes: number) => {
+    setTimerSessionId(sessionId);
+    setTimeRemaining(durationMinutes * 60);
+    setIsTimerRunning(true);
+  };
+
+  const pauseTimer = () => {
+    setIsTimerRunning(false);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+  };
+
+  const resumeTimer = () => {
+    setIsTimerRunning(true);
+  };
+
+  const stopTimer = () => {
+    setIsTimerRunning(false);
+    setTimerSessionId(null);
+    setTimeRemaining(0);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+  };
+
+  const playNotificationSound = useCallback(async () => {
+    try {
+      console.log("🔔 Starting notification sound...");
+      
+      // Method 1: Haptic feedback (most reliable on Expo Go)
+      try {
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        console.log("✓ Haptic notification played");
+      } catch (e) {
+        console.log("✗ Haptic error:", e);
+      }
+
+      // Method 2: Set audio mode for proper sound playback
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          shouldDuckAndroid: false,
+        });
+        console.log("✓ Audio mode configured");
+      } catch (e) {
+        console.log("✗ Audio mode error:", e);
+      }
+
+      // Method 3: Use data URI to play beep (works in Expo Go)
+      try {
+        const sound = new Audio.Sound();
+        // 1-second 800Hz beep in WAV format (data URI)
+        const beepUri = "data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==";
+        
+        await sound.loadAsync({ uri: beepUri });
+        await sound.playAsync();
+        console.log("✓ Data URI beep played");
+        
+        setTimeout(() => {
+          sound.unloadAsync().catch(() => {});
+        }, 1500);
+      } catch (e) {
+        console.log("✗ Data URI beep error:", e);
+      }
+
+      // Method 4: Web Audio API beep (web browsers)
+      if (typeof window !== "undefined") {
+        try {
+          const audioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+          if (audioContext) {
+            const ctx = new audioContext();
+            const now = ctx.currentTime;
+            
+            // Create three beeps
+            for (let i = 0; i < 3; i++) {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              
+              osc.frequency.value = 800;
+              gain.gain.setValueAtTime(0.3, now + i * 0.3);
+              gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.3 + 0.2);
+              
+              osc.start(now + i * 0.3);
+              osc.stop(now + i * 0.3 + 0.2);
+            }
+            console.log("✓ Web audio beep played");
+          }
+        } catch (e) {
+          console.log("✗ Web audio error:", e);
+        }
+      }
+    } catch (error) {
+      console.log("✗ Notification error:", error);
+    }
+  }, []);
+
+  const completeTimer = () => {
+    if (timerSessionId) {
+      toggleComplete(timerSessionId);
+      playNotificationSound();
+    }
+    stopTimer();
+  };
+
+  useEffect(() => {
+    if (isTimerRunning && timeRemaining > 0) {
+      timerIntervalRef.current = setInterval(() => {
+        setTimeRemaining((prev) => {
+          if (prev <= 1) {
+            setIsTimerRunning(false);
+            // Play sound when timer reaches 0
+            playNotificationSound();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else if (isTimerRunning && timeRemaining === 0) {
+      setIsTimerRunning(false);
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [isTimerRunning, timeRemaining, playNotificationSound]);
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
     return date.toLocaleDateString("en-US", options);
+  };
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+    return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -682,6 +914,13 @@ export default function StudyPlannerScreen() {
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
+                      style={[styles.actionButton, { backgroundColor: "#007AFF20", flex: 1 }]}
+                      onPress={() => startTimer(item.id, item.duration)}
+                    >
+                      <MaterialIcons name="timer" size={14} color="#007AFF" />
+                      <Text style={[styles.actionButtonText, { color: "#007AFF" }]}>Timer</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
                       style={[styles.actionButton, styles.editButton]}
                       onPress={() => openModal(item)}
                     >
@@ -762,6 +1001,13 @@ export default function StudyPlannerScreen() {
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
+                      style={[styles.actionButton, { backgroundColor: "#007AFF20", flex: 1 }]}
+                      onPress={() => startTimer(item.id, item.duration)}
+                    >
+                      <MaterialIcons name="timer" size={14} color="#007AFF" />
+                      <Text style={[styles.actionButtonText, { color: "#007AFF" }]}>Timer</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
                       style={[styles.actionButton, styles.editButton]}
                       onPress={() => openModal(item)}
                     >
@@ -801,7 +1047,10 @@ export default function StudyPlannerScreen() {
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView 
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollViewContent}
+            >
               {/* Subject */}
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Subject</Text>
@@ -916,83 +1165,166 @@ export default function StudyPlannerScreen() {
       <Modal animationType="fade" transparent visible={showCalendar} onRequestClose={() => setShowCalendar(false)}>
         <View style={styles.calendarModal}>
           <View style={styles.calendarContainer}>
-            {/* Calendar Header with Month/Year Navigation */}
-            <View style={styles.calendarHeader}>
-              <TouchableOpacity
-                onPress={() => {
-                  const [year, month] = formData.date.split("-");
-                  const prevMonth = parseInt(month) === 1 ? 12 : parseInt(month) - 1;
-                  const prevYear = parseInt(month) === 1 ? parseInt(year) - 1 : parseInt(year);
-                  setFormData({
-                    ...formData,
-                    date: `${prevYear}-${String(prevMonth).padStart(2, "0")}-01`,
-                  });
-                }}
-              >
-                <MaterialIcons name="chevron-left" size={28} color="#007AFF" />
-              </TouchableOpacity>
-
-              <Text style={styles.calendarTitle}>
-                {new Date(formData.date).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-              </Text>
-
-              <TouchableOpacity
-                onPress={() => {
-                  const [year, month] = formData.date.split("-");
-                  const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1;
-                  const nextYear = parseInt(month) === 12 ? parseInt(year) + 1 : parseInt(year);
-                  setFormData({
-                    ...formData,
-                    date: `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`,
-                  });
-                }}
-              >
-                <MaterialIcons name="chevron-right" size={28} color="#007AFF" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Weekday Headers */}
-            <View style={styles.calendarWeekdayRow}>
-              {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
-                <Text key={idx} style={styles.calendarWeekday}>
-                  {day}
-                </Text>
-              ))}
-            </View>
-
-            {/* Calendar Days Grid */}
-            <View style={styles.calendarDaysRow}>
-              {generateCalendarDays(formData.date).map((day, idx) => (
+            <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+              {/* Calendar Header with Month/Year Navigation */}
+              <View style={styles.calendarHeader}>
                 <TouchableOpacity
-                  key={idx}
-                  style={[
-                    styles.calendarDay,
-                    day && formData.date.endsWith(`-${String(day).padStart(2, "0")}`) ? styles.calendarDaySelected : null,
-                  ]}
-                  onPress={() => day && handleDateSelect(day)}
-                  disabled={!day}
+                  onPress={() => {
+                    const [year, month] = formData.date.split("-");
+                    const prevMonth = parseInt(month) === 1 ? 12 : parseInt(month) - 1;
+                    const prevYear = parseInt(month) === 1 ? parseInt(year) - 1 : parseInt(year);
+                    setFormData({
+                      ...formData,
+                      date: `${prevYear}-${String(prevMonth).padStart(2, "0")}-01`,
+                    });
+                  }}
                 >
-                  {day && (
-                    <Text
-                      style={[
-                        styles.calendarDayText,
-                        formData.date.endsWith(`-${String(day).padStart(2, "0")}`) ? styles.calendarDaySelectedText : null,
-                      ]}
-                    >
-                      {day}
-                    </Text>
-                  )}
+                  <MaterialIcons name="chevron-left" size={28} color="#007AFF" />
                 </TouchableOpacity>
-              ))}
-            </View>
 
-            {/* Close Button */}
-            <TouchableOpacity
-              style={[styles.saveButton, { marginTop: 16 }]}
-              onPress={() => setShowCalendar(false)}
-            >
-              <Text style={styles.saveButtonText}>Done</Text>
-            </TouchableOpacity>
+                <Text style={styles.calendarTitle}>
+                  {new Date(formData.date).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    const [year, month] = formData.date.split("-");
+                    const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1;
+                    const nextYear = parseInt(month) === 12 ? parseInt(year) + 1 : parseInt(year);
+                    setFormData({
+                      ...formData,
+                      date: `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`,
+                    });
+                  }}
+                >
+                  <MaterialIcons name="chevron-right" size={28} color="#007AFF" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Weekday Headers */}
+              <View style={styles.calendarWeekdayRow}>
+                {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
+                  <Text key={idx} style={styles.calendarWeekday}>
+                    {day}
+                  </Text>
+                ))}
+              </View>
+
+              {/* Calendar Days Grid */}
+              <View style={styles.calendarDaysRow}>
+                {generateCalendarDays(formData.date).map((day, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[
+                      styles.calendarDay,
+                      day && formData.date.endsWith(`-${String(day).padStart(2, "0")}`) ? styles.calendarDaySelected : null,
+                    ]}
+                    onPress={() => day && handleDateSelect(day)}
+                    disabled={!day}
+                  >
+                    {day && (
+                      <Text
+                        style={[
+                          styles.calendarDayText,
+                          formData.date.endsWith(`-${String(day).padStart(2, "0")}`) ? styles.calendarDaySelectedText : null,
+                        ]}
+                      >
+                        {day}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Close Button */}
+              <TouchableOpacity
+                style={[styles.saveButton, { marginTop: 20, marginBottom: 0 }]}
+                onPress={() => setShowCalendar(false)}
+              >
+                <Text style={styles.saveButtonText}>Done</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Timer Modal */}
+      <Modal
+        animationType="fade"
+        transparent
+        visible={timerSessionId !== null}
+        onRequestClose={stopTimer}
+      >
+        <View style={styles.timerModal}>
+          <View style={styles.timerContainer}>
+            {timerSessionId && (
+              <>
+                <Text style={styles.timerTitle}>
+                  {sessions.find((s) => s.id === timerSessionId)?.subject}
+                </Text>
+                <Text style={styles.timerSubtitle}>
+                  {sessions.find((s) => s.id === timerSessionId)?.topic}
+                </Text>
+
+                {/* Progress Bar */}
+                <View style={styles.timerProgressBar}>
+                  <View
+                    style={[
+                      styles.timerProgressFill,
+                      {
+                        width: `${
+                          100 *
+                          (1 -
+                            timeRemaining /
+                              (sessions.find((s) => s.id === timerSessionId)?.duration ?? 1) /
+                              60)
+                        }%`,
+                      },
+                    ]}
+                  />
+                </View>
+
+                {/* Timer Display */}
+                <Text style={styles.timerDisplay}>{formatTime(timeRemaining)}</Text>
+
+                {/* Control Buttons */}
+                <View style={styles.timerControlsRow}>
+                  {!isTimerRunning ? (
+                    <TouchableOpacity
+                      style={[styles.timerButton, styles.timerPlayButton]}
+                      onPress={resumeTimer}
+                    >
+                      <MaterialIcons name="play-arrow" size={20} color="#fff" />
+                      <Text style={styles.timerButtonText}>Start</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      style={[styles.timerButton, styles.timerPauseButton]}
+                      onPress={pauseTimer}
+                    >
+                      <MaterialIcons name="pause" size={20} color="#fff" />
+                      <Text style={styles.timerButtonText}>Pause</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  <TouchableOpacity
+                    style={[styles.timerButton, styles.timerCompleteButton]}
+                    onPress={completeTimer}
+                  >
+                    <MaterialIcons name="check" size={20} color="#fff" />
+                    <Text style={styles.timerButtonText}>Complete</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                  style={[styles.timerButton, styles.timerStopButton]}
+                  onPress={stopTimer}
+                >
+                  <MaterialIcons name="close" size={20} color="#fff" />
+                  <Text style={styles.timerButtonText}>Stop</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </View>
       </Modal>
