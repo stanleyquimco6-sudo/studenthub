@@ -34,39 +34,9 @@ export default function TasksScreen() {
 
   const [tasks, setTasks] = useState<Task[]>([
     {
-      id: "1",
-      title: "Read Chapter 3 of Textbook",
-      subject: "Literature",
-      completed: false,
-    },
-    {
-      id: "2",
-      title: "Complete Math Assignment",
-      subject: "Mathematics",
-      completed: true,
-    },
-    {
-      id: "3",
-      title: "Submit Project Report",
-      subject: "Science",
-      completed: false,
-    },
-    {
-      id: "4",
-      title: "Prepare for Quiz",
-      subject: "History",
-      completed: false,
-    },
-    {
-      id: "5",
-      title: "Group Meeting Discussion",
-      subject: "Computer Science",
-      completed: false,
-    },
-    {
       id: "6",
-      title: "Write Essay Outline",
-      subject: "English",
+      title: "Computer Assemble",
+      subject: "ITM 110",
       completed: false,
     },
     {
@@ -351,7 +321,7 @@ export default function TasksScreen() {
       completed: false,
     };
 
-    setTasks([...tasks, newTask]);
+    setTasks([newTask, ...tasks]);
     setNewTaskTitle("");
     setNewTaskSubject("");
     setShowModal(false);
