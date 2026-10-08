@@ -52,9 +52,9 @@ export default function NotesScreen() {
     },
     headerImage: {
       width: "100%",
-      height: 180,
-      borderRadius: 12,
-      marginBottom: 16,
+      height: 160,
+      borderRadius: 10,
+      marginBottom: 10,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.15,
