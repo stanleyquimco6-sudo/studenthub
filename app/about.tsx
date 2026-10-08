@@ -21,12 +21,19 @@ export default function AboutScreen() {
     },
     card: {
       backgroundColor: isDark ? "#2a2a2a" : "#fff",
-      borderRadius: 12,
-      padding: 16,
+      borderRadius: 14,
+      padding: 18,
       marginBottom: 16,
+      borderWidth: 1,
+      borderColor: isDark ? "#444" : "#f0f0f0",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.08,
+      shadowRadius: 3,
+      elevation: 2,
     },
     title: {
-      fontSize: 24,
+      fontSize: 28,
       fontWeight: "bold",
       color: isDark ? "#fff" : "#000",
       marginBottom: 8,
@@ -37,106 +44,153 @@ export default function AboutScreen() {
       color: isDark ? "#aaa" : "#666",
       textAlign: "center",
       marginBottom: 12,
+      fontWeight: "500",
     },
     sectionTitle: {
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: "bold",
       color: isDark ? "#fff" : "#000",
-      marginBottom: 8,
-      marginTop: 12,
+      marginBottom: 12,
+      marginTop: 8,
     },
     sectionText: {
       fontSize: 14,
       color: isDark ? "#ccc" : "#333",
       lineHeight: 22,
-      marginBottom: 8,
+      marginBottom: 12,
     },
     featureRow: {
       flexDirection: "row",
       alignItems: "flex-start",
-      marginBottom: 12,
+      marginBottom: 14,
       gap: 12,
     },
     featureIcon: {
-      width: 32,
-      height: 32,
-      borderRadius: 6,
+      width: 38,
+      height: 38,
+      borderRadius: 8,
       backgroundColor: "#007AFF",
       justifyContent: "center",
       alignItems: "center",
       marginTop: 2,
+      shadowColor: "#007AFF",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
     },
     featureContent: {
       flex: 1,
     },
     featureTitle: {
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: "bold",
       color: isDark ? "#fff" : "#000",
-      marginBottom: 2,
+      marginBottom: 3,
     },
     featureDescription: {
       fontSize: 13,
       color: isDark ? "#aaa" : "#666",
+      lineHeight: 18,
     },
-    lessonBadge: {
-      backgroundColor: isDark ? "#444" : "#f0f0f0",
-      borderRadius: 6,
-      paddingHorizontal: 10,
-      paddingVertical: 6,
-      marginRight: 8,
-      marginBottom: 8,
+    memberCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: isDark ? "#1a1a1a" : "#f9f9f9",
+      borderRadius: 10,
+      padding: 12,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: isDark ? "#444" : "#eee",
+      gap: 12,
     },
-    lessonBadgeText: {
-      fontSize: 12,
-      fontWeight: "600",
-      color: "#007AFF",
+    memberIcon: {
+      width: 45,
+      height: 45,
+      borderRadius: 22.5,
+      backgroundColor: "#4ECDC4",
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: "#4ECDC4",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    memberInfo: {
+      flex: 1,
+    },
+    memberName: {
+      fontSize: 14,
+      fontWeight: "bold",
+      color: isDark ? "#fff" : "#000",
+    },
+    badgeContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
     },
     footer: {
       textAlign: "center",
       fontSize: 12,
       color: isDark ? "#888" : "#999",
-      marginTop: 16,
+      marginTop: 20,
       paddingTop: 16,
       borderTopWidth: 1,
       borderTopColor: isDark ? "#444" : "#ddd",
+      marginBottom: 20,
     },
   });
 
+  const groupMembers = [
+    { id: 1, name: "Stanley Jose Quimco", role: "Frontend Lead" },
+    { id: 2, name: "Jusenil Rosal", role: "Backend Developer" },
+    { id: 3, name: "Dawn Jessa Toling", role: "UI/UX Designer" },
+    { id: 4, name: "Vanessa Roble", role: "Documentation" },
+    { id: 5, name: "Mark Anthony Salvador", role: "Testing & QA" },
+  ];
+
   const lessons = [
-    "Basic React Native Components",
-    "User Inputs & Forms",
+    "React Native Components",
     "useState Hook",
+    "useEffect Hook",
     "Expo Router Navigation",
-    "Moving Data Between Screens",
-    "useEffect & Lifecycle",
+    "Dark/Light Mode",
+    "Local State Management",
+    "Form Handling",
+    "List Rendering",
   ];
 
   const features = [
     {
       icon: "dashboard",
-      title: "Dashboard Overview",
-      description: "Quick stats on tasks, grades, and notes",
+      title: "Dashboard",
+      description: "Quick overview with statistics and quick access cards",
+    },
+    {
+      icon: "calendar-today",
+      title: "Study Planner",
+      description: "Schedule and manage study sessions by subject and priority",
     },
     {
       icon: "checklist",
       title: "Task Management",
-      description: "Create, complete, and track assignments",
-    },
-    {
-      icon: "grade",
-      title: "Grade Tracker",
-      description: "Log course grades and calculate averages",
+      description: "Create, track, and complete academic tasks",
     },
     {
       icon: "note",
       title: "Note Taking",
-      description: "Organize notes by subject and topic",
+      description: "Organize notes by subject with easy categorization",
     },
     {
       icon: "person",
       title: "Profile Management",
-      description: "Manage your profile and group members",
+      description: "Manage your profile information and edit settings",
+    },
+    {
+      icon: "info",
+      title: "About & Team",
+      description: "Learn about the app and meet the development team",
     },
   ];
 
@@ -145,24 +199,19 @@ export default function AboutScreen() {
       {/* Header */}
       <View style={styles.card}>
         <Text style={styles.title}>StudentHub</Text>
-        <Text style={styles.subtitle}>
-          A college group project by 5 students
-        </Text>
+        <Text style={styles.subtitle}>College Group Project • 5 Students</Text>
         <Text style={styles.sectionText}>
-          StudentHub is a beginner-friendly mobile app built with React Native
-          and Expo. It demonstrates core concepts for managing academic tasks,
-          grades, and notes.
+          A modern mobile learning companion built with React Native and Expo. StudentHub helps students organize their academic life with study planning, task management, and note-taking features.
         </Text>
       </View>
 
-      {/* What's Included */}
+      {/* Features */}
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>📱 Features</Text>
-
+        <Text style={styles.sectionTitle}>Features</Text>
         {features.map((feature, index) => (
           <View key={index} style={styles.featureRow}>
             <View style={styles.featureIcon}>
-              <MaterialIcons name={feature.icon as any} size={18} color="#fff" />
+              <MaterialIcons name={feature.icon as any} size={20} color="#fff" />
             </View>
             <View style={styles.featureContent}>
               <Text style={styles.featureTitle}>{feature.title}</Text>
@@ -172,70 +221,73 @@ export default function AboutScreen() {
         ))}
       </View>
 
-      {/* Lessons Demonstrated */}
+      {/* Development Team */}
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>📚 Lessons Demonstrated</Text>
+        <Text style={styles.sectionTitle}>Group 4</Text>
         <Text style={styles.sectionText}>
-          This app teaches the following core concepts:
+          StudentHub was created by the dedicated members of Group 4.
         </Text>
 
-        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {lessons.map((lesson, index) => (
-            <View key={index} style={styles.lessonBadge}>
-              <Text style={styles.lessonBadgeText}>✓ {lesson}</Text>
+        {groupMembers.map((member) => (
+          <View key={member.id} style={styles.memberCard}>
+            <View style={styles.memberIcon}>
+              <MaterialIcons name="person" size={24} color="#fff" />
             </View>
-          ))}
-        </View>
+            <View style={styles.memberInfo}>
+              <Text style={styles.memberName}>{member.name}</Text>
+            </View>
+          </View>
+        ))}
       </View>
 
       {/* Tech Stack */}
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>⚙️ Tech Stack</Text>
+        <Text style={styles.sectionTitle}>Built With</Text>
 
         <View style={styles.featureRow}>
           <View style={styles.featureIcon}>
-            <MaterialIcons name="code" size={18} color="#fff" />
+            <MaterialIcons name="code" size={20} color="#fff" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle}>React Native</Text>
             <Text style={styles.featureDescription}>
-              Cross-platform mobile framework
+              Cross-platform mobile framework for iOS and Android
             </Text>
           </View>
         </View>
 
         <View style={styles.featureRow}>
           <View style={styles.featureIcon}>
-            <MaterialIcons name="language" size={18} color="#fff" />
+            <MaterialIcons name="rocket" size={20} color="#fff" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle}>Expo</Text>
             <Text style={styles.featureDescription}>
-              Platform for building universal React apps
+              Development platform for building React apps
             </Text>
           </View>
         </View>
 
         <View style={styles.featureRow}>
           <View style={styles.featureIcon}>
-            <MaterialIcons name="navigation" size={18} color="#fff" />
+            <MaterialIcons name="navigation" size={20} color="#fff" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle}>Expo Router</Text>
             <Text style={styles.featureDescription}>
-              File-based routing for navigation
+              File-based routing and navigation system
             </Text>
           </View>
         </View>
 
         <View style={styles.featureRow}>
           <View style={styles.featureIcon}>
-            <MaterialIcons name="terminal" size={18} color="#fff" />
+            <MaterialIcons name="terminal" size={20} color="#fff" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle}>TypeScript</Text>
             <Text style={styles.featureDescription}>
-              Type-safe JavaScript
+              Type-safe JavaScript for better code quality
             </Text>
           </View>
         </View>
@@ -243,7 +295,7 @@ export default function AboutScreen() {
 
       {/* Footer */}
       <Text style={styles.footer}>
-        StudentHub v1.0.0 • Built for learning • No backend required
+        StudentHub v1.0.0 • Built for Learning • Lessons 1-6
       </Text>
     </ScrollView>
   );
