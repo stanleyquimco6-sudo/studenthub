@@ -91,10 +91,6 @@ export default function NotesScreen() {
       shadowRadius: 4,
       elevation: 4,
       resizeMode: "cover",
-
-    header: {
-      marginBottom: Spacing.lg,
- main
     },
     header: {
       marginBottom: Spacing.lg,
