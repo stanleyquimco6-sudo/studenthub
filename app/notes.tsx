@@ -79,8 +79,17 @@ export default function NotesScreen() {
       padding: Spacing.lg,
       flex: 1,
     },
-    header: {
-      marginBottom: Spacing.lg,
+    headerImage: {
+      width: "100%",
+      height: 160,
+      borderRadius: 10,
+      marginBottom: 10,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 4,
+      resizeMode: "cover",
     },
     headerTitle: {
       fontSize: Typography.sizes.h3,

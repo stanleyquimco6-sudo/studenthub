@@ -290,5 +290,6 @@ MIT License - Feel free to use and modify
 **Group 4** - College Project  
 Built with React Native & Expo
 
+---
 
-
+**Start building awesome mobile apps with StudentHub!** 🎉
