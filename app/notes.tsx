@@ -96,6 +96,9 @@ export default function NotesScreen() {
       marginBottom: Spacing.lg,
  main
     },
+    header: {
+      marginBottom: Spacing.lg,
+    },
     headerTitle: {
       fontSize: Typography.sizes.h3,
       fontWeight: "700",
