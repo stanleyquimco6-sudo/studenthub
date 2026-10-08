@@ -2,16 +2,16 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   FlatList,
+  Image,
   Modal,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   useColorScheme,
   View,
-  Image,
-  ScrollView,
 } from "react-native";
 import {
   BorderRadius,
@@ -170,6 +170,7 @@ export default function TasksScreen() {
       justifyContent: "center",
       alignItems: "center",
       gap: Spacing.sm,
+      marginBottom: Spacing.lg,
     },
     addButtonText: {
       color: "#fff",
