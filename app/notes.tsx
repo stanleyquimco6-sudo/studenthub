@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   useColorScheme,
+  Image,
 } from "react-native";
 import { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -54,6 +55,29 @@ export default function NotesScreen() {
     },
     content: {
       padding: 16,
+    },
+    headerImage: {
+      width: "100%",
+      height: 180,
+      borderRadius: 12,
+      marginBottom: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 4,
+      resizeMode: "cover",
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: isDark ? "#fff" : "#000",
+      marginBottom: 4,
+    },
+    headerSubtitle: {
+      fontSize: 14,
+      color: isDark ? "#aaa" : "#666",
+      marginBottom: 16,
     },
     card: {
       backgroundColor: isDark ? "#2a2a2a" : "#fff",
@@ -168,6 +192,16 @@ export default function NotesScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Header Image */}
+      <Image
+        source={require("../assets/images/fornotes.png")}
+        style={styles.headerImage}
+        resizeMode="cover"
+      />
+
+      <Text style={styles.headerTitle}>My Notes</Text>
+      <Text style={styles.headerSubtitle}>Capture your learning moments</Text>
+
       {/* Add Note Form */}
       <View style={styles.card}>
         <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12, color: isDark ? "#fff" : "#000" }}>

@@ -8,6 +8,8 @@ import {
     TouchableOpacity,
     useColorScheme,
     View,
+    Image,
+    ScrollView,
 } from "react-native";
 
 interface Task {
@@ -37,6 +39,29 @@ export default function TasksScreen() {
     },
     content: {
       padding: 16,
+    },
+    headerImage: {
+      width: "100%",
+      height: 180,
+      borderRadius: 12,
+      marginBottom: 16,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 4,
+      resizeMode: "cover",
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: isDark ? "#fff" : "#000",
+      marginBottom: 12,
+    },
+    headerSubtitle: {
+      fontSize: 14,
+      color: isDark ? "#aaa" : "#666",
+      marginBottom: 16,
     },
     inputContainer: {
       flexDirection: "row",
@@ -117,7 +142,17 @@ export default function TasksScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Header Image */}
+        <Image
+          source={require("../assets/images/fortask.jpg")}
+          style={styles.headerImage}
+          resizeMode="cover"
+        />
+
+        <Text style={styles.headerTitle}>My Tasks</Text>
+        <Text style={styles.headerSubtitle}>Stay organized and track your progress</Text>
+
         {/* Task Stats */}
         <Text
           style={{
@@ -181,7 +216,7 @@ export default function TasksScreen() {
             )}
           />
         )}
-      </View>
+      </ScrollView>
     </View>
   );
 }

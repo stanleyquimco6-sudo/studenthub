@@ -4,17 +4,40 @@ import { useColorScheme } from "react-native";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const tintColor = colorScheme === "dark" ? "#fff" : "#007AFF";
+  const isDark = colorScheme === "dark";
+  const tintColor = isDark ? "#fff" : "#007AFF";
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: tintColor,
-        tabBarInactiveTintColor: colorScheme === "dark" ? "#888" : "#ccc",
+        tabBarInactiveTintColor: isDark ? "#666" : "#999",
+        tabBarStyle: {
+          backgroundColor: isDark ? "#1a1a1a" : "#fff",
+          borderTopWidth: 1,
+          borderTopColor: isDark ? "#333" : "#f0f0f0",
+          elevation: 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "600",
+          marginTop: 4,
+        },
         headerShown: true,
         headerTitleAlign: "center",
         headerStyle: {
-          backgroundColor: colorScheme === "dark" ? "#1a1a1a" : "#f9f9f9",
+          backgroundColor: isDark ? "#1a1a1a" : "#f9f9f9",
+          borderBottomWidth: 1,
+          borderBottomColor: isDark ? "#333" : "#f0f0f0",
+          elevation: 2,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.08,
+          shadowRadius: 2,
         },
         headerTitleStyle: {
           color: tintColor,
@@ -27,9 +50,9 @@ export default function RootLayout() {
         name="index"
         options={{
           title: "Dashboard",
-          tabBarLabel: "Dashboard",
+          tabBarLabel: "Home",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="dashboard" size={24} color={color} />
+            <MaterialIcons name="home" size={24} color={color} />
           ),
           headerTitle: "StudentHub Dashboard",
         }}
@@ -49,7 +72,7 @@ export default function RootLayout() {
         name="grades"
         options={{
           title: "Study Planner",
-          tabBarLabel: "Study Planner",
+          tabBarLabel: "Study",
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="calendar-today" size={24} color={color} />
           ),

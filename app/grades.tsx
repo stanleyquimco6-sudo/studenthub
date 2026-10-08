@@ -10,6 +10,7 @@ import {
   Modal,
   Pressable,
   SafeAreaView,
+  Image,
 } from "react-native";
 import { useState } from "react";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -107,6 +108,19 @@ export default function StudyPlannerScreen() {
     },
     header: {
       marginBottom: 24,
+      alignItems: "center",
+    },
+    headerImage: {
+      width: "100%",
+      height: 180,
+      borderRadius: 12,
+      marginBottom: 12,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 4,
+      elevation: 4,
+      resizeMode: "cover",
     },
     headerTitle: {
       fontSize: 28,
@@ -486,6 +500,11 @@ export default function StudyPlannerScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
+          <Image
+            source={require("../assets/images/forstudyplanner.jpg")}
+            style={styles.headerImage}
+            resizeMode="cover"
+          />
           <Text style={styles.headerTitle}>Study Planner</Text>
           <Text style={styles.headerSubtitle}>Plan your study sessions and stay on track.</Text>
         </View>

@@ -5,6 +5,8 @@ import {
   Text,
   useColorScheme,
   View,
+  Image,
+  Dimensions,
 } from "react-native";
 import { DashboardCard } from "../components/DashboardCard";
 
@@ -67,39 +69,71 @@ export default function DashboardScreen() {
     },
     headerContainer: {
       marginBottom: 24,
+      alignItems: "center",
+    },
+    studentImage: {
+      width: 140,
+      height: 140,
+      borderRadius: 70,
+      marginBottom: 12,
+      borderWidth: 3,
+      borderColor: "#007AFF",
+      shadowColor: "#007AFF",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 6,
     },
     greeting: {
-      fontSize: 24,
-      fontWeight: "bold",
-      color: isDark ? "#fff" : "#000",
-      marginBottom: 8,
-    },
-    studentName: {
       fontSize: 20,
-      fontWeight: "600",
-      color: "#007AFF",
-      marginBottom: 16,
-    },
-    infoCard: {
-      backgroundColor: isDark ? "#2a2a2a" : "#fff",
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 24,
-      borderLeftWidth: 4,
-      borderLeftColor: "#007AFF",
-    },
-    infoLabel: {
-      fontSize: 12,
       fontWeight: "600",
       color: isDark ? "#aaa" : "#666",
       marginBottom: 4,
-      textTransform: "uppercase",
     },
-    infoValue: {
-      fontSize: 16,
-      fontWeight: "600",
+    studentName: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: "#007AFF",
+      marginBottom: 0,
+    },
+    infoCard: {
+      backgroundColor: isDark ? "#2a2a2a" : "#fff",
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 24,
+      borderWidth: 1,
+      borderColor: isDark ? "#444" : "#f0f0f0",
+      shadowColor: "#007AFF",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+      elevation: 3,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-around",
+    },
+    infoBadge: {
+      flex: 1,
+      alignItems: "center",
+    },
+    infoBadgeLabel: {
+      fontSize: 11,
+      fontWeight: "700",
+      color: isDark ? "#aaa" : "#999",
+      marginBottom: 4,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+    },
+    infoBadgeValue: {
+      fontSize: 15,
+      fontWeight: "700",
       color: isDark ? "#fff" : "#000",
-      marginBottom: 12,
+    },
+    divider: {
+      width: 1,
+      height: 30,
+      backgroundColor: isDark ? "#444" : "#eee",
+      marginHorizontal: 12,
     },
     sectionTitle: {
       fontSize: 18,
@@ -127,19 +161,24 @@ export default function DashboardScreen() {
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
-          <Text style={styles.greeting}>Welcome back! 👋</Text>
+          <Image
+            source={require("../assets/images/student.jpg")}
+            style={styles.studentImage}
+          />
+          <Text style={styles.greeting}>Welcome back!</Text>
           <Text style={styles.studentName}>{studentInfo.name}</Text>
         </View>
 
         {/* Student Information Card */}
         <View style={styles.infoCard}>
-          <View>
-            <Text style={styles.infoLabel}>Course</Text>
-            <Text style={styles.infoValue}>{studentInfo.course}</Text>
+          <View style={styles.infoBadge}>
+            <Text style={styles.infoBadgeLabel}>Course</Text>
+            <Text style={styles.infoBadgeValue}>{studentInfo.course}</Text>
           </View>
-          <View>
-            <Text style={styles.infoLabel}>Section</Text>
-            <Text style={styles.infoValue}>{studentInfo.section}</Text>
+          <View style={styles.divider} />
+          <View style={styles.infoBadge}>
+            <Text style={styles.infoBadgeLabel}>Section</Text>
+            <Text style={styles.infoBadgeValue}>{studentInfo.section}</Text>
           </View>
         </View>
 
@@ -165,13 +204,20 @@ export default function DashboardScreen() {
         <View
           style={[
             styles.infoCard,
-            { borderLeftColor: "#95E1D3", marginBottom: 40 },
+            { 
+              borderLeftWidth: 0,
+              backgroundColor: isDark ? "#2C3E50" : "#E8F4F8",
+              marginBottom: 40,
+              flexDirection: "column",
+              alignItems: "flex-start",
+            },
           ]}
         >
-          <Text style={styles.infoLabel}>💡 Tip</Text>
-          <Text style={styles.infoValue}>
-            Use the tabs at the bottom to navigate between screens, or tap the
-            cards above for quick access.
+          <Text style={[styles.infoBadgeLabel, { marginBottom: 8, color: "#007AFF" }]}>
+            Getting Started
+          </Text>
+          <Text style={[styles.infoBadgeValue, { fontSize: 14, color: isDark ? "#ddd" : "#333", fontWeight: "400" }]}>
+            Use the tabs below to explore Study Planner, Tasks, Notes, and more. Tap cards above for quick access.
           </Text>
         </View>
       </ScrollView>
