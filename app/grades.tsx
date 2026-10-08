@@ -89,6 +89,7 @@ export default function StudyPlannerScreen() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [formData, setFormData] = useState({
     subject: "",
     topic: "",
@@ -337,6 +338,71 @@ export default function StudyPlannerScreen() {
       borderWidth: 1,
       borderColor: isDark ? "#444" : "#ddd",
     },
+    calendarButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    calendarModal: {
+      flex: 1,
+      backgroundColor: "#00000080",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    calendarContainer: {
+      backgroundColor: isDark ? "#2a2a2a" : "#fff",
+      borderRadius: 16,
+      padding: 20,
+      width: "85%",
+    },
+    calendarHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    calendarTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: isDark ? "#fff" : "#000",
+    },
+    calendarWeekdayRow: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      marginBottom: 10,
+    },
+    calendarWeekday: {
+      width: "14.28%",
+      alignItems: "center",
+      paddingVertical: 8,
+      fontSize: 12,
+      fontWeight: "600",
+      color: isDark ? "#aaa" : "#666",
+    },
+    calendarDaysRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-around",
+    },
+    calendarDay: {
+      width: "14.28%",
+      aspectRatio: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 8,
+      marginBottom: 8,
+    },
+    calendarDayText: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: isDark ? "#fff" : "#000",
+    },
+    calendarDaySelected: {
+      backgroundColor: "#007AFF",
+    },
+    calendarDaySelectedText: {
+      color: "#fff",
+    },
     priorityContainer: {
       flexDirection: "row",
       gap: 8,
@@ -383,6 +449,30 @@ export default function StudyPlannerScreen() {
       marginTop: 4,
     },
   });
+
+  const generateCalendarDays = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days: (number | null)[] = [];
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(i);
+    }
+    return days;
+  };
+
+  const handleDateSelect = (day: number) => {
+    const [year, month] = formData.date.split("-");
+    const newDate = `${year}-${month}-${String(day).padStart(2, "0")}`;
+    setFormData({ ...formData, date: newDate });
+    setShowCalendar(false);
+  };
 
   const getPriorityColor = (priority: "Low" | "Medium" | "High") => {
     switch (priority) {
@@ -537,7 +627,7 @@ export default function StudyPlannerScreen() {
         {/* Today's Study Plan */}
         {todaysSessions.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>Today's Study Plan</Text>
+            <Text style={styles.sectionTitle}>Today&apos;s Study Plan</Text>
             <FlatList
               data={todaysSessions}
               scrollEnabled={false}
@@ -739,13 +829,15 @@ export default function StudyPlannerScreen() {
               {/* Date */}
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Date</Text>
-                <TextInput
-                  style={styles.formInput}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor={isDark ? "#666" : "#999"}
-                  value={formData.date}
-                  onChangeText={(text) => setFormData({ ...formData, date: text })}
-                />
+                <TouchableOpacity
+                  style={[styles.formInput, styles.calendarButton]}
+                  onPress={() => setShowCalendar(true)}
+                >
+                  <MaterialIcons name="calendar-today" size={20} color="#007AFF" />
+                  <Text style={{ color: isDark ? "#fff" : "#000", fontSize: 14 }}>
+                    {formData.date}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               {/* Time */}
@@ -816,6 +908,91 @@ export default function StudyPlannerScreen() {
                 </TouchableOpacity>
               </View>
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Calendar Picker Modal */}
+      <Modal animationType="fade" transparent visible={showCalendar} onRequestClose={() => setShowCalendar(false)}>
+        <View style={styles.calendarModal}>
+          <View style={styles.calendarContainer}>
+            {/* Calendar Header with Month/Year Navigation */}
+            <View style={styles.calendarHeader}>
+              <TouchableOpacity
+                onPress={() => {
+                  const [year, month] = formData.date.split("-");
+                  const prevMonth = parseInt(month) === 1 ? 12 : parseInt(month) - 1;
+                  const prevYear = parseInt(month) === 1 ? parseInt(year) - 1 : parseInt(year);
+                  setFormData({
+                    ...formData,
+                    date: `${prevYear}-${String(prevMonth).padStart(2, "0")}-01`,
+                  });
+                }}
+              >
+                <MaterialIcons name="chevron-left" size={28} color="#007AFF" />
+              </TouchableOpacity>
+
+              <Text style={styles.calendarTitle}>
+                {new Date(formData.date).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+              </Text>
+
+              <TouchableOpacity
+                onPress={() => {
+                  const [year, month] = formData.date.split("-");
+                  const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1;
+                  const nextYear = parseInt(month) === 12 ? parseInt(year) + 1 : parseInt(year);
+                  setFormData({
+                    ...formData,
+                    date: `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`,
+                  });
+                }}
+              >
+                <MaterialIcons name="chevron-right" size={28} color="#007AFF" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Weekday Headers */}
+            <View style={styles.calendarWeekdayRow}>
+              {["S", "M", "T", "W", "T", "F", "S"].map((day, idx) => (
+                <Text key={idx} style={styles.calendarWeekday}>
+                  {day}
+                </Text>
+              ))}
+            </View>
+
+            {/* Calendar Days Grid */}
+            <View style={styles.calendarDaysRow}>
+              {generateCalendarDays(formData.date).map((day, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={[
+                    styles.calendarDay,
+                    day && formData.date.endsWith(`-${String(day).padStart(2, "0")}`) ? styles.calendarDaySelected : null,
+                  ]}
+                  onPress={() => day && handleDateSelect(day)}
+                  disabled={!day}
+                >
+                  {day && (
+                    <Text
+                      style={[
+                        styles.calendarDayText,
+                        formData.date.endsWith(`-${String(day).padStart(2, "0")}`) ? styles.calendarDaySelectedText : null,
+                      ]}
+                    >
+                      {day}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Close Button */}
+            <TouchableOpacity
+              style={[styles.saveButton, { marginTop: 16 }]}
+              onPress={() => setShowCalendar(false)}
+            >
+              <Text style={styles.saveButtonText}>Done</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

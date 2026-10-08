@@ -7,7 +7,9 @@ import {
   View,
   Image,
   Dimensions,
+  Animated,
 } from "react-native";
+import { useEffect, useRef } from "react";
 import { DashboardCard } from "../components/DashboardCard";
 
 /**
@@ -18,6 +20,59 @@ import { DashboardCard } from "../components/DashboardCard";
 export default function DashboardScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+
+  // Animation references
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Fade in and slide up animation
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Continuous pulse animation for info card (very subtle)
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.08,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0.96,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1.04,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   // Student information (hardcoded for now, no backend)
   const studentInfo = {
@@ -112,6 +167,9 @@ export default function DashboardScreen() {
       alignItems: "center",
       justifyContent: "space-around",
     },
+    animatedInfoCard: {
+      transform: [{ scale: pulseAnim }],
+    },
     infoBadge: {
       flex: 1,
       alignItems: "center",
@@ -170,7 +228,7 @@ export default function DashboardScreen() {
         </View>
 
         {/* Student Information Card */}
-        <View style={styles.infoCard}>
+        <Animated.View style={[styles.infoCard, styles.animatedInfoCard]}>
           <View style={styles.infoBadge}>
             <Text style={styles.infoBadgeLabel}>Course</Text>
             <Text style={styles.infoBadgeValue}>{studentInfo.course}</Text>
@@ -180,7 +238,7 @@ export default function DashboardScreen() {
             <Text style={styles.infoBadgeLabel}>Section</Text>
             <Text style={styles.infoBadgeValue}>{studentInfo.section}</Text>
           </View>
-        </View>
+        </Animated.View>
 
         {/* Quick Access Section */}
         <Text style={styles.sectionTitle}>Quick Access</Text>
