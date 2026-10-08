@@ -48,12 +48,12 @@ export default function RootLayout() {
       <Tabs.Screen
         name="grades"
         options={{
-          title: "Grades",
-          tabBarLabel: "Grades",
+          title: "Study Planner",
+          tabBarLabel: "Study Planner",
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="grade" size={24} color={color} />
+            <MaterialIcons name="calendar-today" size={24} color={color} />
           ),
-          headerTitle: "My Grades",
+          headerTitle: "Study Planner",
         }}
       />
       <Tabs.Screen

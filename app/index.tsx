@@ -19,17 +19,17 @@ export default function DashboardScreen() {
 
   // Student information (hardcoded for now, no backend)
   const studentInfo = {
-    name: "John Doe",
-    course: "Computer Science",
-    section: "B",
+    name: "Mark Anthony Salvador",
+    course: "BSIT",
+    section: "4-I",
   };
 
   // Dashboard cards configuration
   const dashboardCards = [
     {
-      title: "Grades",
-      icon: "grade" as const,
-      description: "View your grades",
+      title: "Study Planner",
+      icon: "calendar-today" as const,
+      description: "Plan your study sessions",
       onPress: () => router.push("/grades"),
       backgroundColor: "#4ECDC4",
     },
