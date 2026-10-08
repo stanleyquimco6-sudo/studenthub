@@ -162,6 +162,116 @@ npm run lint              # ESLint code style
 npx tsc --noEmit          # TypeScript type checking
 npm run start             # Visual testing
 ```
+## 🎨 Color Scheme
+
+### Light Mode
+- Background: `#f9f9f9`
+- Cards: `#ffffff`
+- Text: `#000000`
+- Primary: `#007AFF`
+
+### Dark Mode
+- Background: `#1a1a1a`
+- Cards: `#2a2a2a`
+- Text: `#ffffff`
+- Primary: `#007AFF`
+
+## 📦 Dependencies
+
+### Core
+- `react-native` - Mobile framework
+- `expo` - Development platform
+- `expo-router` - File-based routing
+
+### Features
+- `@expo/vector-icons` - Icon library (MaterialIcons, MaterialCommunityIcons)
+- `expo-haptics` - Vibration feedback
+- `expo-av` - Audio playback for notifications
+
+### UI/State
+- `react-native-reanimated` - Advanced animations
+- `react-native-gesture-handler` - Gesture support
+
+
+```
+app/
+├── _layout.tsx          # Navigation tabs
+├── index.tsx            # Dashboard with animations
+├── grades.tsx           # Study Planner (timer + calendar)
+├── tasks.tsx            # Task management
+├── notes.tsx            # Notes organizer
+├── profile.tsx          # Profile screen (redesigned)
+└── about.tsx            # About with Group 4 info
+
+components/
+├── Button.tsx
+├── Card.tsx
+├── DashboardCard.tsx
+├── IconButton.tsx
+├── InputField.tsx
+├── StatCard.tsx
+├── StudentAvatar.tsx
+└── ThemedText.tsx
+
+constants/
+├── colors.ts
+├── spacing.ts
+├── typography.ts
+└── mockData.ts
+
+hooks/
+├── useGrades.ts
+├── useNotes.ts
+├── useProfile.ts
+├── useTasks.ts
+└── index.ts
+
+assets/
+├── images/
+│   ├── student.jpg
+│   ├── forstudyplanner.jpg
+│   ├── fortask.jpg
+│   └── fornotes.png
+└── sounds/
+    └── notification.wav
+```
+
+## 🛠️ Setup & Installation
+
+### Prerequisites
+- Node.js (v18+)
+- npm or yarn
+- Expo CLI: `npm install -g expo-cli`
+
+### Quick Start
+
+```bash
+# 1. Navigate to project
+cd studenthub
+
+# 2. Install dependencies
+npm install
+
+# 3. Start development
+npm run start
+
+# 4. Run on device
+# Press 'i' for iOS, 'a' for Android, or 'w' for web
+```
+
+## 🎮 Testing on Expo Go
+
+1. Download **Expo Go** on your phone
+2. Scan the QR code from `npm run start`
+3. App loads instantly - no build needed!
+
+## ✅ Quality Checks
+
+```bash
+npm run lint              # ESLint code style
+npx tsc --noEmit          # TypeScript type checking
+npm run start             # Visual testing
+```
 
 ## 🎨 Color Scheme
 
@@ -287,9 +397,101 @@ MIT License - Feel free to use and modify
 
 ## 👥 Contributors
 
+=======
+## 🔄 Recent Changes
+
+### Study Planner Enhancements
+✅ Replaced Grade Calculator with Study Planner  
+✅ Added working timer system (start, pause, complete, stop)  
+✅ Implemented audio notifications for completion  
+✅ Added calendar date picker modal  
+✅ Fixed button layout to fit all screen sizes  
+✅ Made newly added sessions appear at top  
+
+### Dashboard Improvements
+✅ Added student profile image header  
+✅ Implemented smooth animations (fade, slide, scale)  
+✅ Added continuous bouncy pulse on course card  
+✅ Responsive design for mobile and web  
+
+### Profile & About
+✅ Redesigned Profile with modern card layout  
+✅ Updated About screen with Group 4 members  
+✅ Removed Learning Concepts section  
+✅ Added member names (roles removed)  
+
+### Tasks & Notes
+✅ Updated to show new items at top  
+✅ Added header images to both screens  
+✅ Responsive layout for all devices  
+
+### General
+✅ Fixed all TypeScript errors  
+✅ Resolved git merge conflicts  
+✅ Cleaned up unused imports  
+✅ Ensured linting passes  
+
+## 📱 Supported Platforms
+
+- ✅ iOS (via Expo Go or native build)
+- ✅ Android (via Expo Go or native build)
+- ✅ Web (via Expo Web)
+
+## 🎓 Learning Outcomes
+
+Through building StudentHub, you'll learn:
+- ✅ React Native fundamentals
+- ✅ Expo Router for navigation
+- ✅ React Hooks (useState, useEffect, useCallback, useRef)
+- ✅ Custom hooks creation
+- ✅ TypeScript in React Native
+- ✅ Dark/light mode implementation
+- ✅ Animations with React Native Animated API
+- ✅ Cross-platform audio/haptic feedback
+- ✅ Responsive mobile UI design
+- ✅ State management patterns
+
+## 📊 App Stats
+
+- **7 Screens** - Dashboard, Study Planner, Tasks, Notes, Profile, About, etc.
+- **4 Components** - Card, Button, IconButton, InputField
+- **3 Custom Hooks** - useGrades, useNotes, useTasks
+- **100+ Styled Elements** - Buttons, cards, modals, badges
+- **Dark Mode Support** - Full theme switching
+- **Animations** - Multiple smooth transitions
+- **Audio Notifications** - Cross-platform support
+
+## 🚀 Future Enhancements
+
+- Push notifications
+- Data persistence (AsyncStorage)
+- Cloud sync
+- Social features
+- Advanced analytics
+- Study goal tracking
+- Calendar integration
+
+## 📝 Code Quality
+
+- **TypeScript** - Full type safety
+- **ESLint** - Code style consistency
+- **React Best Practices** - Following hooks and components best practices
+- **Responsive Design** - Works on all screen sizes
+
+## 🤝 Development Notes
+
+- All state is local (no backend required)
+- Suitable for learning React Native
+- Easy to extend and customize
+- Well-organized component structure
+- Clear naming conventions
+
+## 📄 License
+
+MIT License - Feel free to use and modify
+
+## 👥 Contributors
+
 **Group 4** - College Project  
 Built with React Native & Expo
 
----
-
-**Start building awesome mobile apps with StudentHub!** 🎉
