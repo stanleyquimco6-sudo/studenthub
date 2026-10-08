@@ -10,15 +10,8 @@ import {
   TouchableOpacity,
   useColorScheme,
   View,
-    FlatList,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    useColorScheme,
-    View,
-    Image,
-    ScrollView,
+  Image,
+  ScrollView,
 } from "react-native";
 import {
   BorderRadius,
@@ -76,9 +69,12 @@ export default function TasksScreen() {
       subject: "English",
       completed: false,
     },
-    { id: "3", title: "Submit Project Report", completed: false },
-    { id: "4", title: "Prepare for Quiz", completed: false },
-    { id: "5", title: "Laravel Projet", completed: false },
+    {
+      id: "7",
+      title: "Laravel Project",
+      subject: "Web Development",
+      completed: false,
+    },
   ]);
 
   const [showModal, setShowModal] = useState(false);
@@ -101,13 +97,6 @@ export default function TasksScreen() {
     header: {
       marginBottom: Spacing.lg,
     },
-    headerTitle: {
-      fontSize: Typography.sizes.h3,
-      fontWeight: "700",
-      color: isDark ? Colors.dark.text : Colors.light.text,
-      marginBottom: Spacing.sm,
-    },
-    statsContainer: {
     headerImage: {
       width: "100%",
       height: 180,
@@ -131,7 +120,7 @@ export default function TasksScreen() {
       color: isDark ? "#aaa" : "#666",
       marginBottom: 16,
     },
-    inputContainer: {
+    statsContainer: {
       flexDirection: "row",
       gap: Spacing.md,
       marginBottom: Spacing.lg,
@@ -156,14 +145,30 @@ export default function TasksScreen() {
       color: isDark ? Colors.dark.textSecondary : Colors.light.textSecondary,
       textAlign: "center",
     },
+    inputContainer: {
+      flexDirection: "row",
+      gap: Spacing.md,
+      marginBottom: Spacing.lg,
+    },
+    input: {
+      flex: 1,
+      backgroundColor: isDark ? Colors.dark.background : Colors.light.background,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1,
+      borderColor: isDark ? Colors.dark.border : Colors.light.border,
+      paddingHorizontal: Padding.input,
+      paddingVertical: Padding.input,
+      color: isDark ? Colors.dark.text : Colors.light.text,
+      fontSize: Typography.sizes.body,
+    },
     addButton: {
       backgroundColor: Colors.primary,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
       borderRadius: BorderRadius.lg,
       paddingVertical: Spacing.md,
-      marginBottom: Spacing.lg,
+      paddingHorizontal: Spacing.md,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
       gap: Spacing.sm,
     },
     addButtonText: {
@@ -349,10 +354,6 @@ export default function TasksScreen() {
     setNewTaskTitle("");
     setNewTaskSubject("");
     setShowModal(false);
-    if (newTask.trim()) {
-      setTasks([{ id: Date.now().toString(), title: newTask, completed: false }, ...tasks]);
-      setNewTask("");
-    }
   };
 
   const toggleTaskCompletion = (id: string) => {
@@ -376,11 +377,20 @@ export default function TasksScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Tasks</Text>
-        </View>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Header Image */}
+        <Image
+          source={require("../assets/images/fortask.jpg")}
+          style={styles.headerImage}
+          resizeMode="cover"
+        />
 
+        <Text style={styles.headerTitle}>My Tasks</Text>
+        <Text style={styles.headerSubtitle}>
+          Stay organized and track your progress
+        </Text>
+
+        {/* Task Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
             <MaterialCommunityIcons
@@ -415,50 +425,9 @@ export default function TasksScreen() {
           style={styles.addButton}
           onPress={() => setShowModal(true)}
         >
-          <MaterialCommunityIcons
-            name="plus"
-            size={24}
-            color="#fff"
-          />
+          <MaterialCommunityIcons name="plus" size={24} color="#fff" />
           <Text style={styles.addButtonText}>Add Task</Text>
         </TouchableOpacity>
-    <View style={styles.container}>
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header Image */}
-        <Image
-          source={require("../assets/images/fortask.jpg")}
-          style={styles.headerImage}
-          resizeMode="cover"
-        />
-
-        <Text style={styles.headerTitle}>My Tasks</Text>
-        <Text style={styles.headerSubtitle}>Stay organized and track your progress</Text>
-
-        {/* Task Stats */}
-        <Text
-          style={{
-            fontSize: 14,
-            color: isDark ? "#aaa" : "#666",
-            marginBottom: 12,
-          }}
-        >
-          {completedCount} of {tasks.length} completed
-        </Text>
-
-        {/* Input for new task */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Add a new task..."
-            placeholderTextColor={isDark ? "#666" : "#999"}
-            value={newTask}
-            onChangeText={setNewTask}
-            onSubmitEditing={addTask}
-          />
-          <TouchableOpacity style={styles.addButton} onPress={addTask}>
-            <MaterialIcons name="add" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
 
         <View style={styles.taskListContainer}>
           {tasks.length === 0 ? (
@@ -534,11 +503,11 @@ export default function TasksScreen() {
                 </View>
               )}
               contentContainerStyle={styles.flatListContent}
-              scrollEnabled={true}
+              scrollEnabled={false}
             />
           )}
         </View>
-      </View>
+      </ScrollView>
 
       <Modal
         visible={showModal}
@@ -605,26 +574,5 @@ export default function TasksScreen() {
         </View>
       </Modal>
     </SafeAreaView>
-                  <Text
-                    style={[
-                      styles.taskText,
-                      item.completed && styles.taskTextCompleted,
-                    ]}
-                  >
-                    {item.title}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => deleteTask(item.id)}
-                >
-                  <MaterialIcons name="delete" size={20} color="#FF6B6B" />
-                </TouchableOpacity>
-              </View>
-            )}
-          />
-        )}
-      </ScrollView>
-    </View>
   );
 }
